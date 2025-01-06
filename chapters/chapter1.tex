@@ -1,1 +1,103 @@
 \chapter{Introduction}
+
+\section{Motivation}
+
+\[
+    \text{Math Textbook} + \text{Laptop} + \text{Coding} \overset{?}{\implies} \text{Compute Accurate Solution}
+\]
+
+Consider the McLaurin series expansion of the function \( f(x) = e^x \): \begin{align*}
+    e^x & = 1 + x + \frac{x^2}{2!} + \frac{x^3}{3!} + \cdots \\
+        & = \sum_{n=0}^{\infty} \frac{x^n}{n!}
+\end{align*}
+
+The issue is that we cannot compute to infinity. We need to introduce partial sums \[
+    S_n = \sum_{i=0}^{n} \frac{x^i}{i!}
+\]
+
+We could iterate over \( n \) until \( \left| S_n - S_{n-1} \right| < \text{tolerance} \).
+
+\begin{table}[ht!]
+    \centering
+    \begin{tabular}{c|ccccc}
+        \( x \)                   & 0 & 1  & 10 & 20 & 40  \\
+        Num Terms to ``Converge'' & 2 & 13 & 42 & 69 & 104 \\
+    \end{tabular}
+\end{table}
+
+We observe that the running time is dependent on the value of \( x \). We need to find a better way to compute the sum -- with more consistent running time.
+
+Using the python program,
+\begin{itemize}
+    \item When \( x = -30 \), convergence happened after 97 terms, to \( -6.0 \times 10^{-5} \).
+    \item When \( x = -40 \), convergence happened after 124 terms, to approximately \( -5.9 \times 10^0 \).
+\end{itemize}
+
+\begin{figure}[ht!]
+    \centering
+    \begin{tikzpicture}
+        \draw[->] (-5,0) -- (1,0) node[right] {\( x \)};
+        \draw[->] (0,-2) -- (0,2) node[above] {\( y \)};
+
+        % y = e^x
+        \draw[domain=-5:1,smooth,variable=\x,red] plot ({\x},{exp(\x)}) node[right] {\( e^x \)};
+
+        % Dot at x = -30
+        \draw[blue,fill=blue] (-3,0) circle (0.05) node[below] {\( -30 \)};
+        \draw[blue,fill=blue] (-4,0) circle (0.05) node[below] {\( -40 \)};
+    \end{tikzpicture}
+\end{figure}
+
+Clearly, we have inaccuracy when \( x = -40 \), as \( 0 < e^x < 1 \) for all \( x < 0 \). The math textbooks'
+s techniques does not always provide good computational algorithms.
+
+Course goal:
+
+Show computational algorithms and discuss why they are good.
+
+\begin{example}[\( e^x \) Better Algorithm]
+    A better algorithm is as follows
+
+    \begin{itemize}
+        \item Find \( k \) such that \( r = \frac{x}{k} \) exactly with \( \|r \| < 1 \).
+        \item Compute $e^{r} = e^{x/k}$ using the McLaurin series.
+        \item Then, $e^x = (e^r)^k$.
+    \end{itemize}
+\end{example}
+
+\begin{remark}[Error due to Catasrophic Cancellation]
+    When we subtract two numbers that are very close to each other, we lose precision.
+\end{remark}
+
+\section{Topics}
+
+\begin{itemize}
+    \item Computer Arithmetic and Computational Errors (Chap. 1)
+          \begin{itemize}
+              \item Floating Point Arithmetic
+              \item Two Concepts
+                    \begin{itemize}
+                        \item The conditioning of a math problem
+                        \item the numerical stability of an algorithm
+                    \end{itemize}
+          \end{itemize}
+
+    \item Solving Systems of Linear Equations (Chap. 2)
+
+          \begin{itemize}
+              \item Solve \( A x = b \) for \( x \)
+          \end{itemize}
+
+    \item Solving Non-linear Equations (Chap. 5)
+
+          Fine \( x \) s.t. \( f(x) = 0 \) or \( g(x) = 0 \) or \( f(x) = g(x) \).
+
+    \item Interpolation (Chap. 7)
+          \begin{itemize}
+              \item  Given the set of data \[
+                        \left\{ (t_i, y_i) \right\}_{i=0}^{n}
+                        \qquad \text{ or } \qquad
+                        \left\{ (t_i, f(t_i)) \right\}_{i=0}^{n}
+                    \] come up with a function $g(t)$ that approximates the data.
+          \end{itemize}
+\end{itemize}
