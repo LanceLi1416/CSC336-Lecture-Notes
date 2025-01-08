@@ -185,6 +185,16 @@
 
 \newenvironment{theorem}[1][] {\begin{Theorem}{#1}{}} {\end{Theorem}}
 
+% Note -------------------------------------------------------------------------
+\newtcolorbox{note}[1][] {
+    colback=Gray-100,
+    colframe=Gray-200,
+    coltitle=Gray-700,
+    title=\bold{Note: #1},
+    fonttitle=\bfseries,
+    breakable
+}
+
 % Algorithms -------------------------------------------------------------------
 % \Call
 \algrenewcommand\Call[2]{\textproc{\color{primary}\textsc{#1}}(#2)}
