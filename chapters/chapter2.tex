@@ -35,7 +35,7 @@ There is only finite space in computer. How would we store \( \pi \), an irratio
 
     Fortunately, \begin{align*}
         y_0
-         & = \int_0^1 \frac{1}{x + 5} \,dx
+         & = \int_0^1 \frac{1}{x + 5} \,dx \\
          & = \ln (x + 5) \Big|_0^1         \\
          & = \ln 6 - \ln 5                 \\
          & = \ln \frac{6}{5}
@@ -83,6 +83,151 @@ A lesson learned from the previous example is that the math textbook algorithms 
     An algorithm is said to be \term{numerically unstable} if the error in the output is not bounded by the error in the input.
 \end{definition}
 
+\begin{remark}
+    In the previous example, a small error \( E \) is magnified by \( 5 \) each step.
+\end{remark}
+
+\begin{example}[Cont.]
+    We can re-arrange the recurrent relation
+    \begin{align*}
+        y_{n+1}
+         & = \frac{1}{n-1} - 5y_n                               \\
+        5y_n
+         & = \frac{1}{n+1} - y_{n+1}                            \\
+        y_{n+1}
+         & = \frac{1}{5} \left( \frac{1}{n+1} - y_{n+1} \right) \\
+    \end{align*}
+
+    We have bounded the error in the output by the error in the input, but we are at a disadvantage since we are computing backwards. How can we start this recurrent relation?
+
+    Recall that \[
+        y_{100} < y_{99} < \cdots < y_0 \doteq 0.182
+    \]
+
+    We start by approximating \( y_{100} \doteq 0 \). We know the exact value is \( y_{100} = 0 + \varepsilon \), where \( 0 < \epsilon < 0.182 \).
+
+    Then,
+    \begin{minipage}[t]{0.45\linewidth}
+        \begin{align*}
+            y_{99}
+             & = \frac{1}{5} \left( \frac{1}{100} - y_{100} \right)            \\
+             & = \frac{1}{5} \left( \frac{1}{100} - (0 + \varepsilon ) \right) \\
+             & = \frac{1}{500} - \frac{\varepsilon}{5}
+        \end{align*}
+    \end{minipage}
+    \begin{minipage}[t]{0.45\linewidth}
+        \begin{align*}
+            y_{98}
+             & = \frac{1}{5} \left( \frac{1}{100} - y_{99} \right)                                              \\
+             & = \frac{1}{5} \left( \frac{1}{100} - \left(\frac{1}{500} + \frac{\varepsilon}{5} \right) \right) \\
+             & = \cdots + \frac{\varepsilon}{25}
+        \end{align*}
+    \end{minipage}
+
+    {~~~}
+
+    {~~~}
+
+    We observe that the effect of the error is \( \varepsilon \) is diminished by a factor of \( \frac{1}{5} \) each step. This is a numerically stable algorithm. By the time we get to \( y_8 \), we can expect an accurate result.
+\end{example}
+
 \begin{definition}[Numerical Stability]\index{Numerical Stability}
     An algorithm is said to be \term{numerically stable} if the error in the output is bounded by the error in the input.
 \end{definition}
+
+\section{Floating Point Arithmetic}
+
+\subsection{Floating Point Representation}
+
+We only have finite space in the computer. This means we cannot store all real numbers, only an approximation of them. We use the \term{floating point representation} to store real numbers.
+
+\begin{definition}[Floating Point Representation]\index{Floating Point Representation}\index{Floating Point!Significant}\index{Floating Point!Mantissa}\index{Floating Point!Base}\index{Floating Point!Exponent}
+    A real number \( x \) is represented in the form \[
+        fl(x) = \pm d_0 . d_1 d_2 \dots d_{p-1} \times \beta^e \qquad d_0 \neq 0
+    \] where \( m \) is the \term{significant} or \term{mantissa}, \( \beta \) is the \term{base}, and \( e \) is the \term{exponent}.
+\end{definition}
+
+\begin{note}
+    \begin{itemize}
+        \item \( d_i \)'s are bounded by \[
+                  0 \leq d_i < \beta.
+              \]
+
+        \item \( p \) is the precision of the accuracy.
+
+        \item \( E \) is also bounded by \[
+                  L \leq E \leq U
+              \]
+    \end{itemize}
+\end{note}
+
+With the floating point representation, we have a finite set of floating point numbers \[
+    F(\beta, p, L, U) = \{ \pm d_0 . d_1 d_2 \dots d_{p-1} \times \beta^E : 0 \leq d_i < \beta, L \leq E \leq U \}.
+\]
+
+\begin{remark}[\( d_0 \neq 0 \)]
+    We observe that this representation is not unique. Consider a system \[
+        F(\beta=10, p=5, L=-10, U=10)
+    \] and the number \( 1.23 \), we have the representation \[
+        + 1.2300 \times 10^0 \in F(10, 5, -10, 10)
+    \] but also \[
+        + 0.1230 \times 10^1 \in F(10, 5, -10, 10)
+    \] and \[
+        + 0.0123 \times 10^2 \in F(10, 5, -10, 10)
+    \]
+
+    Thus, we need to choose a unique representation for each number. We can add a rule that the first digit is not zero, which normalizes the floating point representation, and makes representations unique.
+\end{remark}
+
+\begin{remark}[Representating Zero]
+    Since \( d_0 \neq 0 \), how can we represent zero? We define another rule \[
+        fl(0) = 0.000\dots0 \times \beta^{L-1}
+    \] where an exponent of \( L-1 \) is used to indicate the value is denormalized.
+\end{remark}
+
+In the early days of computing, different manufacturers used different floating point representations. This made it difficult to write portable code. The IEEE 754 standard \cite{8766229} was introduced to standardize floating point representations.
+
+\begin{table}[H]
+    \centering
+    \begin{tabular}{ccc}
+                    & Single Precision & Double Precision \\
+        \( \beta \) & 2                & 2                \\
+        \( p \)     & 24               & 53               \\
+        \( L \)     & -126             & -1022            \\
+        \( U \)     & 127              & 1023
+    \end{tabular}
+\end{table}
+
+\begin{note}
+    For single precision, we have \[
+        E \in \{ -126, -125, \ldots, 127 \}
+    \] with a cardinality of \( 254 \). If we use \( 8 \) bits to represent the exponent, we have \( 2^8 = 256 \) possible values. We have \( 2 \) special values: \( E = L - 1 = -127 \) for denormalized numbers, and \( E = U + 1 = 128 \) for infinity and NaN (Not a Number).
+\end{note}
+
+\begin{remark}[Memory Requirements]
+    For single precision, we need \( 1 + 24 + 8 = 33 \) bits to represent a number. This is a very weird number of bits. We don't know any computer that uses 33 bits to represent a number.
+
+        {~~~}
+
+    Turns out we only need \( 23 \) bits for the significant, since the first digit in a normalized system is always 1. We can drop the first digit, and use \( 23 \) bits for the significant, \( 8 \) bits for the exponent, and \( 1 \) bit for the sign. This gives us \( 32 \) bits, which is a more common number of bits.
+\end{remark}
+
+\begin{note}[Types in Different Languages]
+    \begin{table}[H]
+        \centering
+        \begin{tabular}{rcc}
+                   & Single Precision & Double Precision \\
+            C      & \texttt{float}   & \texttt{double}  \\
+            Python &                  & \texttt{float}   \\
+            Rust   & \texttt{f32}     & \texttt{f64}
+        \end{tabular}
+    \end{table}
+\end{note}
+
+\begin{note}[Extended Precision and Reduced Precision]
+    For accurate engineering, we may need more precision, called \term{extended precision} (Quad Precision). This is not part of the IEEE 754 standard, but is available in some systems.
+
+    {~~~}
+
+    In machine learning systems, we want the opposite -- we want to use less precision to save memory and computation time. This is called \term{reduced precision}, and we often use \( 16 \) or \( 8 \) bits. This is a topic of active discussion, and the IEEE committee is working on a standard for reduced precision for ML.
+\end{note}
