@@ -176,13 +176,13 @@ With the floating point representation, we have a finite set of floating point n
         + 0.0123 \times 10^2 \in F(10, 5, -10, 10)
     \]
 
-    Thus, we need to choose a unique representation for each number. We can add a rule that the first digit is not zero, which normalizes the floating point representation, and makes representations unique.
+    Thus, we need to choose a unique representation for each number. We can add a rule that \textbf{the first digit is not zero}, which normalizes the floating point representation, and makes representations unique.
 \end{remark}
 
 \begin{remark}[Representating Zero]
     Since \( d_0 \neq 0 \), how can we represent zero? We define another rule \[
         fl(0) = 0.000\dots0 \times \beta^{L-1}
-    \] where an exponent of \( L-1 \) is used to indicate the value is denormalized.
+    \] where \textbf{an exponent of \( L-1 \) is used to indicate the value is denormalized}.
 \end{remark}
 
 In the early days of computing, different manufacturers used different floating point representations. This made it difficult to write portable code. The IEEE 754 standard \cite{8766229} was introduced to standardize floating point representations.
@@ -227,7 +227,107 @@ In the early days of computing, different manufacturers used different floating 
 \begin{note}[Extended Precision and Reduced Precision]
     For accurate engineering, we may need more precision, called \term{extended precision} (Quad Precision). This is not part of the IEEE 754 standard, but is available in some systems.
 
-    {~~~}
+        {~~~}
 
     In machine learning systems, we want the opposite -- we want to use less precision to save memory and computation time. This is called \term{reduced precision}, and we often use \( 16 \) or \( 8 \) bits. This is a topic of active discussion, and the IEEE committee is working on a standard for reduced precision for ML.
+\end{note}
+
+Note that the distribution of floating point numbers is not uniform. There are more floating point numbers near zero than near \( \pm \infty \). This is because the exponent is distributed uniformly, but the significant is not.
+
+\begin{figure}[H]
+    \centering
+    \begin{tikzpicture}
+        \draw[->] (-5, 0) -- (5, 0) node[right] {\(\R\)};
+
+        \draw (0, 0.1) -- (0, -0.1) node[below] {0};
+        \draw (-4, 0.1) -- (-4, -0.1) node[below] {-Huge};
+        \draw (-1, 0.1) -- (-1, -0.1) node[below] {-Tiny};
+        \draw (1, 0.1) -- (1, -0.1) node[below] {Tiny};
+        \draw (4, 0.1) -- (4, -0.1) node[below] {Huge};
+
+        \node at (0, -1) {[};
+        \node at (0.95, -1) {)};
+        \node at (1.05, -1) {[};
+        \node at (3.95, -1) {)};
+
+        \node at (0.5, -1.5) {Denormalized};
+        \node at (2.5, -1.5) {Normalized};
+    \end{tikzpicture}
+\end{figure}
+
+\begin{table}[H]
+    \centering
+    \begin{tabular}{ccc}
+         & Single
+         & Double                                                          \\
+        HUGE
+         & \( +1.11\dots1 \times 2^{127}   \approx 3.4 \times 10^{38} \)
+         & \( +1.11\dots1 \times 2^{1023}  \approx 1.8 \times 10^{308} \)  \\
+        TINY
+         & \( +1.00\dots0 \times 2^{-126}  \approx 1.2 \times 10^{-38} \)
+         & \( +1.00\dots0 \times 2^{-1022} \approx 2.2 \times 10^{-308} \)
+    \end{tabular}
+\end{table}
+
+\begin{remark}
+    What about \( x \in \R \), \( x > \text{HUGE} \)? In this case, we have an overflow, and the computer will return \( fl(x) = +\infty = 1.00\dots0 \times \beta^{u+1} \).
+\end{remark}
+
+\begin{remark}
+    What happens if we have \( (+ \infty) - (+ \infty) \)? In this case, we have an indeterminate form, and the computer will return \( NaN \) (Not a Number), \[
+        1.xx\dots x \times \beta^{u+1}
+    \] where at least one of the \( x \)'s is not zero.
+\end{remark}
+
+\begin{remark}
+    For \( 0 \leq x \leq \text{TINY} \), take \[
+        fl(x) = \begin{cases}
+            0.00d_id_{i+1}\dots d_{p-1} \times \beta^{L-1} \\
+            0 & \text{eventually}
+        \end{cases}
+    \]
+\end{remark}
+
+\begin{example}
+    Suppose we have \[
+        F(\beta, p, L, U ) = F(10, 3, -10, 10)
+    \] and \[
+        x = 3.00 \times 10^5, y = 3.00 \times 10^5, \qquad x, y \in \R
+    \]
+
+    Computing \[
+        z = x^2 + y^2
+    \] would give \[
+        z = 1.60 \times 10^{11} + 9.00 \times 10^{10} \notin F(10, 3, -10, 10)
+    \] and hence \( fl(z) = +\text{Inf} \).
+
+    What if we instead want to compute \[
+        z = \sqrt{x^2 + y^2}?
+    \]
+    Using the standard algorithm, we get +Inf inside the square root, and the computer will return NaN. We need to repair our algorithm.
+    \begin{align*}
+        h & = \max(|x|, |y|) \times \sqrt{1 + \left(\frac{\min(|x|, |y|)}{\max(|x|, |y|)} \right)^2}
+    \end{align*}
+\end{example}
+
+\begin{remark}
+    The \texttt{libm} library in C and the \texttt{math} module in python both have a function called \texttt{hypot} that computes the Euclidean distance. This is a numerically stable algorithm that avoids overflow and underflow.
+\end{remark}
+
+\begin{note}[Inf Could Have Meanings]
+    Suppose you are computing the slope of a line, and you get infinity. This would indicate that the line is parallel to the y-axis. This is a meaningful result, and not an error.
+\end{note}
+
+\begin{note}[Sometimes, Underflow is OK]
+    % Let \( x \in \R \), \( 0 < x < \text{TINY} \).
+
+    % We have \( fl(x) = 0 \), an underflow, but that's OK.
+
+    Recall the McLaurin series for \[
+        y = 1 + x + \frac{x^2}{2}
+    \]
+
+    Suppose we are computing in \( F(10, 3, -10, 10) \). \[
+        y = 1.00 \times 10^0 + 1.00 \times 10^{-5} + 5.00 \times 10^{-11}
+    \] The last term would underflow, but that's OK. We can ignore it, since it is negligible.
 \end{note}
