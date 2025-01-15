@@ -331,3 +331,124 @@ Note that the distribution of floating point numbers is not uniform. There are m
         y = 1.00 \times 10^0 + 1.00 \times 10^{-5} + 5.00 \times 10^{-11}
     \] The last term would underflow, but that's OK. We can ignore it, since it is negligible.
 \end{note}
+
+\section{Computational Errors}
+
+\subsection{Intuition}
+
+\begin{example}
+    We know that \( \sqrt{255} = 15.9687194227\dots \), but how should we represent this in our floating point system \( F(\beta, p, L, U) = F(10, 3, -10, 10) \)?
+
+    The easiest solution is \term{chopping} / \term{truncation}, where we only keep the first \( p \) digits. This gives us \[
+        fl(\sqrt{255}) = 1.59 \times 10^1
+    \]
+
+    Another approach is \term{round to nearest}, which gives us \[
+        fl(\sqrt{255}) = 1.60 \times 10^1
+    \]
+\end{example}
+
+\begin{remark}
+    Heath called \( x \in \R \to fl(x) \in F \) \term{rounding}. This is why we use \term{round-to-nearest} to disambiguate.
+\end{remark}
+
+\begin{note}
+    We can also round to \( +\text{Inf} \) or to \( -\text{Inf} \)
+\end{note}
+
+\begin{note}[Banker's Rounding]
+    Banker's rounding is a method of rounding that rounds the last digit to the nearest even number, if it is exactly halfway between two numbers. This is the default rounding method in IEEE 754. This method is also known as \term{round to even}.
+\end{note}
+
+\begin{example}[Cont.]
+    After rounding, we have error \[
+        fl(\sqrt{255}) -\sqrt{255} \doteq \begin{cases}
+            -0.0687 & \text{chop}             \\
+            0.0313  & \text{round-to-nearest}
+        \end{cases}
+    \]
+\end{example}
+
+\begin{definition}[Absolute and Relative Error]
+    If \( \tilde{x} \) is an approximation to \( x \), the \term{absolute error in the approximation} is \[
+        | \tilde{x} - x |
+    \] and the \term{relative error} is \[
+        \frac{| \tilde{x} - x |}{|x|} \qquad x \neq 0
+    \]
+\end{definition}
+
+\begin{example}
+    The relative error of the approximation of \( \sqrt{255} \) is \[
+        \doteq \begin{cases}
+            4.3 \times 10^{-3}  & \text{chop}             \\
+            1.96 \times 10^{-3} & \text{round-to-nearest}
+        \end{cases}
+    \]
+\end{example}
+
+\begin{remark}
+    Absolute error is not sensitive to scale, while relative error is.
+\end{remark}
+
+\begin{example}
+    Let \( x, y \in \R \), and they are approximated by \( \tilde{x}, \tilde{y} \in F \).
+
+    Consider \( x = 100.001, y = 0.112, \tilde{x} = 100., \tilde{y} = 0.113 \). The absolute error is \[
+        | \tilde{x} - x | = 0.001, \quad | \tilde{y} - y | = 0.001
+    \]
+    They absolute errors are the same, but this does not meas the two approximations are equally good. The relative error is \[
+        \frac{| \tilde{x} - x |}{|x|} \doteq 1.0 \times 10^{-5}, \quad \frac{| \tilde{y} - y |}{|y|} \doteq 9.0
+    \] The relative error for \( y \) is much larger than for \( x \), so the approximation for \( y \) is worse.
+\end{example}
+
+\subsection{Machine Epsilon}
+
+If \( x \in \R \) is approximated by \( fl(x) \in F \), how large can the relative error be?
+
+\begin{example}
+    Consider \( F(10, 3, L, U ), a \in \R \) with \( a = w.xyz \times 10^E \) with \( 0 < w \leq 9 \),  \( 0 \leq x, y, z \leq 9 \), and \( L \leq E \leq U \).
+
+    Assume we determine \( fl(a) \) using round to nearest, \[
+        | fl(a) - a | \leq 0.005 \times 10^E
+    \]
+
+    The maximum relative error is \begin{align*}
+        \max \frac{| fl(a) - a |}{|a|}
+         & \leq \frac{\max | fl(a) - a |}{\min | a |}    \\
+         & = \frac{0.005 \times 10^E}{1.000 \times 10^E} \\
+         & = 0.005 = \frac{1}{2} \times 10^{-2}
+    \end{align*}
+\end{example}
+
+In general, for \( x \in \R \) and \( fl(x) \in F(\beta, p, L, U) \) with round to nearest, we have \[
+    \frac{|fl(x) - x|}{|x|} \leq \frac{1}{2} \times \beta^{1-p}
+\] assuming \( x \) is representable.
+
+This quantity is called the \term{relative round-off error bound}.
+
+\begin{definition}[Machine Epsilon]\index{Machine Epsilon}\index{Relative Round-off Error Bound}
+    The \term{round-off error bound} or \term{machine epsilon} is the maximum relative error that can occur when approximating a number, \[
+        \varepsilon_{\text{machine}} = \frac{1}{2} \times \beta^{1-p}
+    \]
+\end{definition}
+
+\begin{remark}
+    In IEEE 754, we have \[
+        \varepsilon_{\text{machine}} = \begin{cases}
+            2^{-24} \doteq 5.96 \times 10^{-8} & \text{Single Precision} \\
+            2^{-53} \doteq 1.1 \times 10^{-16} & \text{Double Precision}
+        \end{cases}
+    \]
+\end{remark}
+
+\begin{example}
+    Suppose we have \( F(10,3, -10, 10) \), \( x = 1.51 \times 10^8 \), and \( y = 3.71 \times 10^6 \) , \( x, y \in \R \), \( fl(x) = x, fl(y) = y \).
+
+    We want to compute \( z = x + y \). We have \[
+        z = 1.51 \times 10^8 + 3.71 \times 10^6 = 1.5471 \times 10^8 \notin F
+    \] and \( fl(z) = 1.55 \times 10^8 \).
+\end{example}
+
+\begin{remark}
+    Mathematically, addition is not closed in \( F \).
+\end{remark}
