@@ -589,7 +589,7 @@ We wanted to subtract \[
 
     We know that \[
         ( 1x^2 - 320x + 16 ) = 1 \cdot ( x - r_1 ) ( x - r_2 )
-    \] so 
+    \] so
     \begin{itemize}
         \item \( 1 \cdot r_1 r_2 = 16 \) when \( x = 0 \)
         \item \( r_2 = \dfrac{16}{r_1} = \frac{1.600 \times 10^1}{3,199 \times 10^2} = 5.002 \times 10^{-2} < \epsilon_{\text{machine}} \)
@@ -603,3 +603,102 @@ We wanted to subtract \[
         r_1 = \frac{-b - \text{sign}(b) \sqrt{b^2 - 4ac}}{2a} \qquad r_2 = \frac{c}{ar_1}
     \]
 \end{remark}
+
+Why there is no catastrophic cancellation in \( b^2 - 4ac \)?
+
+If there is cancellation, we must have \( b^2 \approx 4ac \), which means their difference would be a small number, and the square root would be a small number. We later adds it with a much bigger number \( b \), so the small number is insignificant, and the inaccuracy here does not affect the final result.
+
+\begin{example}
+    Consider \( F(10, 4, L, U) \), \( x = 1,23 \times 10^1 \), and \( y = 2.3xx \times 10^{-2} \).
+
+    We have \begin{align*}
+        x + y
+         & = 12.34 + 0.023\texttt{xx}                                                 \\
+         & = 12.363\texttt{xx} \xrightarrow{\text{round}} fl(x+y) = 1.236 \times 10^1
+    \end{align*}
+\end{example}
+
+\begin{remark}
+    Given expr1 and expr2, with all positive intermediate results, \[
+        \varepsilon_{\text{expr1} - \text{expr2}} \leq \left| \frac{\text{expr1}}{\text{expr1}-\text{expr2}} \right| \varepsilon_{\text{expr1}} + \left| \frac{\text{expr2}}{\text{expr1}-\text{expr2}} \right| \varepsilon_{\text{expr2}} + \varepsilon_{D}
+    \] where \( \varepsilon_{D} < \varepsilon_{\text{machine}} \) is the representation error.
+\end{remark}
+
+\begin{remark}
+    Software try to avoid the subtraction of 2 nearly equal inexact values.
+\end{remark}
+
+\begin{example}
+    Give an accurate algorithm for computing the value of \[
+        f(x) = \sqrt{1 + x} - 1
+    \] for \( x > 0 \).
+
+    The na\"ive approach would be to compute \[
+        \texttt{f = math.sqrt(1 + x) - 1}
+    \] but this would lead to catastrophic cancellation when \( x \) is small. The significant of any error in \texttt{math.sqrt(1+x)} is revealed by the subtraction.
+
+    A work around is to compute \begin{align*}
+        f(x)
+         & = (\sqrt{1+x} - 1) \cdot \frac{\sqrt{1+x}+1}{\sqrt{1+x}+1} \\
+         & = \frac{(1+x) - 1}{\sqrt{1+x} + 1}                         \\
+         & = \frac{x}{\sqrt{1+x} + 1}
+    \end{align*} and since \( x > 0 \), there is no catastrophic cancellation. A trade off, however, is that this approach is slower than the na\"ive approach as we have 1 more operation.
+
+
+    \begin{algorithmic}
+        \Function{f}{$x$}
+        \If{\( x \geq 3 \)}
+        \State \( f = \texttt{math.sqrt(1+x) - 1} \)
+        \Else
+        \State \( f = \texttt{x / (math.sqrt(1+x) + 1)} \)
+        \EndIf
+        \EndFunction
+    \end{algorithmic}
+\end{example}
+
+\begin{definition}[Numerically Stable Algorithm]\index{Numerically Stable Algorithm}
+    An algorithm is said to be \term{numerically stable} if the result it produces is the exact result of a ``nearby'' problem.
+\end{definition}
+
+\begin{example}
+    \setlength{\parindent}{0pt}
+
+    Recall computing the root for \[
+        1 \cdot x^2 + (-320)x + 16 = 0
+    \]
+
+    Recall also \[
+        ax^2 + bx + c = 0 \qquad a(x - r_1)(x - r_2) = 0
+    \] are two ways to express the quadratic.
+
+    The quadratic formula gives \[
+        r_1 \ 3.199 \times 19^2 \quad r_2 = 1.000 \times 10^{-1}
+    \]
+
+    For which quadratic equation is this the exact solution? \[
+        1(x - 3.199 \times 10^2)(x - 1.000 \times 10^{-1}) = 0
+    \] which is the same as \[
+        x^2 - 320x + 31.99 = 0
+    \]
+
+    We got the exact roots of a very different problem, \( 16 \to 31.99 \) with a relative increment \( \approx 1 \).
+
+    {~~~}
+
+    The later modifier algorithm gave us \[
+        r_1 = 3.199 \times 10^2 \quad r_2 = 5.002 \times 10^{-2}
+    \]
+
+    Fir which quadratic equation is this the exact solution? \[
+        1(x - 3.199 \times 10^2)(x - 5.002 \times 10^{-2}) = 0
+    \] which is the same as \[
+        x^2 - 319.95002x + 16.001398 = 0
+    \]
+
+    The difference 
+    \begin{itemize}
+        \item \( \Delta a = 0 \)
+        \item \( \Delta b = 0.04998 \) with relative change \( \doteq 1.56 \times 16^4 < \varepsilon_{\text{machine}} \)
+        \item \( \Delta c = 0.01398 \) with relative change \( \doteq 8.74 \times 10^{-5} < \varepsilon_{\text{machine}} \)
+    \end{itemize}
+\end{example}
