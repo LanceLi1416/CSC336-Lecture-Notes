@@ -445,10 +445,161 @@ This quantity is called the \term{relative round-off error bound}.
     Suppose we have \( F(10,3, -10, 10) \), \( x = 1.51 \times 10^8 \), and \( y = 3.71 \times 10^6 \) , \( x, y \in \R \), \( fl(x) = x, fl(y) = y \).
 
     We want to compute \( z = x + y \). We have \[
-        z = 1.51 \times 10^8 + 3.71 \times 10^6 = 1.5471 \times 10^8 \notin F
-    \] and \( fl(z) = 1.55 \times 10^8 \).
+        z = 1.51 \times 10^8 + 3.71 \times 10^6 = 1.5471 \times 10^8 \notin F.
+    \]
 \end{example}
 
 \begin{remark}
     Mathematically, addition is not closed in \( F \).
+\end{remark}
+
+\begin{note}
+    In the CPU, there is extended precision in the floating point unit. This means that the CPU can store more digits than the standard floating point representation. This is useful for intermediate calculations, for example, the \( 0.0371 \times 10^8 \) in the previous example, but the final result is rounded to the standard representation.
+\end{note}
+
+\begin{example}[Cont.]
+    \[
+        fl(z) = \begin{cases}
+            1.54 \times 10^8 & \text{chop}             \\
+            1.55 \times 10^8 & \text{round-to-nearest}
+        \end{cases}
+    \]
+
+    We have the relative error \[
+        \frac{|fl(x+y) - (x+y)|}{|x+y|} = \begin{cases}
+            0.00459 & \text{chop}             \\
+            0.00187 & \text{round-to-nearest}
+        \end{cases} \leq \varepsilon_{\text{machine}} = \begin{cases}
+            0.01  & \text{chop}             \\
+            0.005 & \text{round-to-nearest}
+        \end{cases}
+    \]
+\end{example}
+
+\begin{remark}
+    For IEEE arithemetic, for \( x, y \in F \) and operation \( \text{op} \in \{ \texttt{+}, \texttt{-,} \texttt{*}, \texttt{/} \} \), we must have \[
+        \frac{|fl(x \text{ op } y) -  (x \text{ op } y)|}{|x \text{ op } y|} \leq \varepsilon_{\text{machine}}
+    \] and the square root of \( x \) \[
+        \frac{|fl(\text{sqrt}(x)) - \sqrt{x}|}{|\sqrt{x}|} \leq \varepsilon_{\text{machine}}
+    \]
+\end{remark}
+
+How does the error accumulates as we perform more operations?
+
+\begin{example}
+    \begin{itemize}
+        \item \( \text{expr1} = \text{sqrt}(2.0) + \log(42.0) \)
+        \item \( \text{expr1} = \text{exp}(7.0) + \sin(45.0) \)
+    \end{itemize}
+
+    We have \[
+        \varepsilon_{\text{expr1}} = \frac{|\text{expr1} - (\sqrt{2} + \ln(42))|}{|\sqrt{2} + \ln(42)|}
+    \] and \[
+        \varepsilon_{\text{expr2}} = \frac{|\text{expr2} - (e^7 + \sin(45))|}{|e^7 + \sin(45)|}
+    \]
+
+    Suppose we compute \[
+        \text{expr1} + \text{expr2} \qquad \text{expr1} \times \text{expr2} \qquad \text{expr1} \div \text{expr2}
+    \]
+
+    We know that
+    \begin{itemize}
+        \item \( \varepsilon_{\text{expr1} + \text{expr2}} \leq \max( \varepsilon_{\text{expr1}}, \varepsilon_{\text{expr2}}) + | \epsilon_A | \)
+        \item \( \varepsilon_{\text{expr1} \times \text{expr2}} \leq \varepsilon_{\text{expr1}} + \varepsilon_{\text{expr2}} + | \epsilon_B | \)
+        \item \( \varepsilon_{\text{expr1} \div \text{expr2}} \leq \varepsilon_{\text{expr1}} + \varepsilon_{\text{expr2}} + | \epsilon_C | \)
+    \end{itemize}
+
+    The first terms are error due to in exact operands. The last terms are due to the representing the result in floating point, and since they are representation errors, they need to be smaller than the machine epsilon, \[
+        | \epsilon_A |, | \epsilon_B |, | \epsilon_C | \leq \varepsilon_{\text{machine}}
+    \]
+\end{example}
+
+\begin{remark}
+    Error does not grow too quickly, but it does grow. This is why we need to be careful when performing many operations.
+\end{remark}
+
+What about subtraction? That is a whole different story.
+
+\subsection{Catastrophic Cancellation}
+
+\begin{example}
+    Suppose we want to find the roots of \[
+        x^2 + (-320x) + 16 = 0.
+    \] From math textbooks, we know the quadratic formula \[
+        r_{1,2} = \frac{-b \pm \sqrt{b^2 - 4ac}}{2a}
+    \]
+
+    Using \( F(10, 4, L, U) \), we have \begin{align*}
+        r_1 & = \frac{3.200 \times 10^2 + \sqrt{1.024 \times 10^5 - 6.400 \times 10^1}}{2.000 \times 10^0} \\
+            & \doteq \frac{3.200 \times 10^2 + \sqrt{1.023 \times 10^5}}{2.000 \times 10^0}
+            & \text{1 round off error}                                                                     \\
+            & \doteq \frac{3.200 \times 10^2 + 3.198 \times 10^2}{2.000 \times 10^0}                       \\
+            & = \frac{6.398 \times 10^2}{2.000 \times 10^0}                                                \\
+            & = 3.199 \times 10^2
+    \end{align*}
+
+    Similarly,
+    \begin{align*}
+        r_2 & = \frac{3.200 \times 10^2 - \sqrt{1.024 \times 10^5 - 6.400 \times 10^1}}{2.000 \times 10^0} \\
+            & \doteq \frac{3.200 \times 10^2 - \sqrt{1.023 \times 10^5}}{2.000 \times 10^0}
+            & \text{1 round off error}                                                                     \\
+            & \doteq \frac{3.200 \times 10^2 - 3.198 \times 10^2}{2.000 \times 10^0}                       \\
+            & = \frac{2.000 \times 10^{-1}}{2.000 \times 10^0}                                             \\
+            & = 1.000 \times 10^{-1}
+    \end{align*}
+
+    You can show that the exact roots are \[
+        r_1^* \doteq 319.950 \quad r_2^* \doteq 0.050 \qquad r_2^* = 0.05001
+    \]
+
+    So the relative errors \[
+        \varepsilon_{r_1} \doteq 1.6 \times 10^{-4} \leq \varepsilon_{\text{machine}} = 5 \times 10^{-4} \qquad \varepsilon_{r_2} \doteq 1.0
+    \]
+\end{example}
+
+\begin{remark}
+    A machine epsilon of \( 1 \) tells us that the result is completely wrong. There is no digits of accuracy in the result.
+\end{remark}
+
+Why would this happen? \[
+    r_2 = \frac{3.200 \times 10^2 - 3.198 \times 10^2}{2.000 \times 10^0}
+\]
+
+We know that
+\begin{itemize}
+    \item \( 3.200 \times 10^2 \) is exact
+    \item \( 3.198 \times 10^2 \) has 2 rounding errors, \( fl(\sqrt{fl(102400 - 64)}) \)
+    \item \( 2.000 \times 10^0 \) is exact
+\end{itemize}
+
+We wanted to subtract \[
+    3.200 \times 10^2 - 3.198\texttt{xxxxxx} \times 10^2
+\] We see that the leading terms cancel out, and \( \texttt{xxxxxx} \) are insignificant in the intermediate result, but they are significant in the final result. This is know as the \term{catastrophic cancellation}.
+
+\begin{definition}[Catastrophic Cancellation]\index{Catastrophic Cancellation}
+    \term{Catastrophic Cancellation} is the loss of significance in the result in subtracting two possibly inexact quantities close in value.
+\end{definition}
+
+\begin{remark}
+    To avoid catastrophic cancellation, avoid subtracting nearly equal inexact quantities.
+\end{remark}
+
+\begin{example}[Cont.]
+    So how to determine \( r_2 \) accurately?
+
+    We know that \[
+        ( 1x^2 - 320x + 16 ) = 1 \cdot ( x - r_1 ) ( x - r_2 )
+    \] so 
+    \begin{itemize}
+        \item \( 1 \cdot r_1 r_2 = 16 \) when \( x = 0 \)
+        \item \( r_2 = \dfrac{16}{r_1} = \frac{1.600 \times 10^1}{3,199 \times 10^2} = 5.002 \times 10^{-2} < \epsilon_{\text{machine}} \)
+    \end{itemize}
+\end{example}
+
+\begin{remark}
+    A better algorithm to compute roots of \[
+        ax^2 + bx + c = 0
+    \] is \[
+        r_1 = \frac{-b - \text{sign}(b) \sqrt{b^2 - 4ac}}{2a} \qquad r_2 = \frac{c}{ar_1}
+    \]
 \end{remark}
