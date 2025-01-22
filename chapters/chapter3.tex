@@ -1,0 +1,66 @@
+\chapter{Mathematically Conditioning}
+
+\section{Introduction}
+
+\subsection{Problem Statement}
+
+Suppose we want to compute \( f(x) \) at \( x = \bar{x} \). Suppose we do not know \( \bar{x} \) exactly, but only an approximation of it, \( \hat{x} \) to \( \bar{x} \) where \( \hat{x} \doteq \bar{x} \).
+
+\begin{definition}[Signed Relative Error]\index{Signed Relative Error}
+    The signed relative error in approximation of \( \bar{x} \) by \( \hat{x} \) is defined as \[
+        \delta x = \frac{\hat{x} - \bar{x}}{\bar{x}}.
+    \]
+\end{definition}
+
+We want to compute \( f(\bar{x}) \), but what we get is \( f(\hat{x}) \) -- a slightly different problem. \begin{align*}
+    f(\hat{x})
+     & = f(\bar{x}(1 + \delta x))                                                      \\
+     & = f(\bar{x} + \bar{x} \delta x)                                                 \\
+     & = f(\bar{x}) + (\bar{x} \delta x) f'(\bar{x}) + \dots
+     & \text{Taylor series expansion}                                                  \\
+     & \doteq f(\bar{x}) + (\bar{x} \delta x) f'(\bar{x})                              \\
+     & = f(\bar{x}) \left( 1 + \frac{\bar{x} f'(\bar{x})}{f(\bar{x})} \delta x \right)
+\end{align*}
+
+The relative error in approximating \( f(\bar{x}) \) by \( f(\hat{x}) \) is \[
+    \frac{|f(\hat{x}) - f(\bar{x})|}{|f(\bar{x})|} = \left| \frac{\bar{x} f'(\bar{x})}{f(\bar{x})} \right| | \delta x |.
+\]
+
+An accurate estimation is when \( \left| \frac{\bar{x} f'(\bar{x})}{f(\bar{x})} \right| \) is small. This is known as the \term{condition number} of the problem.
+
+\begin{definition}[Condition Number]\index{Condition Number}
+    The condition number of evaluating \( f(x) \) is defined as \[
+        \kappa_f(x) = \left| \frac{x f'(x)}{f(x)} \right|.
+    \]
+\end{definition}
+
+\begin{remark}
+    Note we nave not written any algorithm. The condition number is a pure mathematical concept.
+\end{remark}
+
+\begin{remark}
+    When \( \kappa_f(x) \) is small, the problem is \term{well-conditioned}\index{Well-Conditioned Problem}. When \( \kappa_f(x) \) is large, the problem is \term{ill-conditioned}\index{Ill-Conditioned Problem}.
+\end{remark}
+
+\begin{remark}[Rule of Thumb]
+    You loose approximately \[
+        \log_2 \kappa_f(x)
+    \] bits of accuracy when you approximate \( f(\bar{x}) \) by \( f(\hat{x}) \).
+\end{remark}
+
+\begin{example}
+    Consider \( f(x) = \sqrt{x} \). Let \( \hat{x} \doteq \bar{{x}} \).
+
+    How well does \( f(\hat{x}) \) approximate \( f(\bar{x}) \)?
+
+    Let's look at the conditional number for this function, \begin{align*}
+        \kappa_{\sqrt{\null}}(x)
+         & = \left| \frac{x \frac{d}{dx} \sqrt{x}}{\sqrt{x}} \right|                      \\
+         & = \left| \frac{x \cdot \frac{1}{2} \cdot \frac{1}{\sqrt{x}}}{\sqrt{x}} \right| \\
+         & = \frac{1}{2}.
+    \end{align*}
+
+    Since \( \kappa_{\sqrt{\null}}(x) < 1 \), \( \sqrt{\hat{x}} \) is a good approximation to \( \sqrt{\bar{x}} \). Any error \( \delta x \) in \( \hat{x} \) becomes \( \frac{1}{2} \delta x \) in \( f(\hat{x}) \) in the relative sense.
+
+    We draw the conclusion that evaluating square roots is a well-conditioned problem. If we have an numerically stable algorithm to compute square roots, we should get an accurate result.
+\end{example}
