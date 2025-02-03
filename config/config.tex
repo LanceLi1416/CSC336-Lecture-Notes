@@ -64,6 +64,10 @@
 % TODO: Add more custom commands here
 \newcommand{\R}{\mathbb{R}}
 
+\renewcommand{\vec}[1]{\underline{#1}}
+
+\pgfplotsset{compat=1.18}
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Text styles
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -221,6 +225,9 @@
 
 % \To
 \newcommand{\To}{\textsc{\color{primary}To}\xspace}
+
+% \DownTo
+\newcommand{\DownTo}{\textsc{\color{primary}DownTo}\xspace}
 
 % \While
 \algrenewcommand\algorithmicwhile {\textsc{\color{primary}While}}

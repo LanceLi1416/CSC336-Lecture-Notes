@@ -1,0 +1,663 @@
+\chapter{Linear systems}
+
+\section{Introduction}
+
+\begin{definition}[Non-Singular Matrix]\index{Non-Singular Matrix}
+    A coefficient matrix \( A \) is \term{non-singular} if and only if \[
+        \exists A^{-1} \text{ such that } A A^{-1} = A^{-1} A = I
+    \]
+\end{definition}
+
+\begin{remark}
+    Some facts
+    \begin{itemize}
+        \item \( A\vec{x} = \vec{b} \) has a \textbf{unique} solution if and only if \( A \) is non-singular.
+        \item \( A \) is non-singular if and only if \( \det(A) \neq 0 \).
+    \end{itemize}
+\end{remark}
+
+In the contrast, a singular matrix is one that is not invertible.
+
+\begin{proposition}
+    If \( \exists z \neq 0 \) such that \( A z = 0 \), then \( A \) is singular.
+\end{proposition}
+
+\begin{remark}
+    Suppose exists \( y \) such that \( A \vec{y} = \vec{b} \), then \( y + \alpha z \) solves \( A \vec{x} = \vec{b} \) may not be a solution.
+
+    For example, \[
+        \begin{pmatrix} 1 & 2 \\ 3 & 4 \end{pmatrix} \begin{pmatrix} x_1 \\ x_2 \end{pmatrix} = \begin{pmatrix} 3 \\ 7 \end{pmatrix}
+    \] has no solution.
+\end{remark}
+
+We will stick to the case where \( A \) is non-singular.
+
+\subsection{Cramer's Rule}
+
+\begin{definition}[Cramer's Rule]\index{Cramer's Rule}
+    For a linear system \( A \vec{x} = \vec{b} \), the solution is \[
+        x_i = \frac{\det(A_i)}{\det(A)}
+    \] where \( A_i \) is the matrix obtained by replacing the \( i \)th column of \( A \) with \( b \).
+\end{definition}
+
+\begin{remark}
+    Cramer's Rule is not practical for large systems, as it requires \( n+1 \) determinants.
+\end{remark}
+
+\section{Gaussian Elimination}
+
+Alternatively, we can compute \( A^{-1} \) and then \( x = A^{-1} b \).
+
+To solve for \( A^{-1} \), we solve for \( AY = I \), then \( x = Yb \).
+
+For \( i = 1 \) to \( n \):
+use some method to solve \( Ay_i = e_i = \begin{pmatrix} 0 \\ \vdots \\ 1 \\ \vdots \\ 0 \end{pmatrix} \).
+
+\subsection{Intuition}
+
+\subsubsection{Case I}
+
+Suppose \( A \) is non-singular diagonal matrix, \[
+    A = \begin{pmatrix}
+        a_1    & 0      & \cdots & 0      \\
+        0      & a_2    & \cdots & 0      \\
+        \vdots & \vdots & \ddots & \vdots \\
+        0      & 0      & \cdots & a_n
+    \end{pmatrix}
+\]
+
+We must have \( \begin{cases}
+    a_{ij} \neq 0 & \text{if } i = j    \\
+    a_{ij} = 0    & \text{if } i \neq j
+\end{cases} \)
+
+Indeed, since \( A \) non-singular, \( \det(A) \neq 0 \), and since \( A \) diagonal, \( \det(A) = a_1 a_2 \cdots a_n \neq 0 \). None of the diagonal elements can be zero.
+
+Then, for \( Ax = b \), we have \( x_i = b_i / a_{i,i} \). We can solve this within a single loop.
+
+\begin{algorithmic}
+    \For{\( i = 1 \) to \( n \)}
+    \State \( x_i = b_i / a_{i,i} \)
+    \EndFor
+\end{algorithmic}
+
+To count the number of operations, we define a new unit of operation, the \term{flop}.
+
+\begin{definition}[FLOP]\index{FLOP}
+    A \term{FLOP} is a \textbf{F}loating-point \textbf{L}inear \textbf{O}peration. This is a single arithmetic operation on floating-point numbers.
+\end{definition}
+
+\begin{example}
+    For the above algorithm, each iteration require 1 FLOP -- a division. Thus, we require \( n \) FLOPs to solve the system.
+\end{example}
+
+\subsubsection{Case II}
+
+Suppose \( A \) is non-singular lower-triangular, \[
+    A = \begin{pmatrix}
+        a_{11} & 0      & \cdots & 0      \\
+        a_{21} & a_{22} & \cdots & 0      \\
+        \vdots & \vdots & \ddots & \vdots \\
+        a_{n1} & a_{n2} & \cdots & a_{nn}
+    \end{pmatrix}
+\]
+We must have \( \begin{cases}
+    a_{ij} = 0    & \text{if } i < j                     \\
+    a_{ii} \neq 0 & \text{since } A \text{ non-singular}
+\end{cases} \)
+
+\begin{itemize}
+    \item \( x_1 = b_1 / a_{1,1} \)
+    \item \( x_2 = (b_2 - a_{2,1} x_1) / a_{2,2} \)
+    \item \( x_3 = (b_3 - a_{3,1} x_1 - a_{3,2} x_2) / a_{3,3} \)
+    \item \( \vdots \)
+    \item \( \displaystyle x_i = \left( b_i - \sum_{j=1}^{i-1} a_{ij} x_j \right) / a_{ii} \)
+\end{itemize}
+
+This algorithm is called \term{forward substitution}.
+
+\begin{algorithm}[H]
+    \begin{algorithmic}
+        \Function{ForwardSubstitution}{$A, b$}
+        \For{\( i = 1 \) \To \( n \)}
+        \State \( sum = 0 \)
+        \For{\( j = 1 \) \To \( i-1 \)}
+        \State \( sum = sum + a_{ij} \cdot x_j \)
+        \EndFor
+        \State \( x_i = (b_i - sum) / a_{ii} \)
+        \EndFor
+        \State \Return \( x \)
+        \EndFunction
+    \end{algorithmic}
+\end{algorithm}
+
+We have the operation count \[
+    \sum_{i=1}^n \left[ \left( \sum_{j=1}^{i-1} 2 \right) + 2 \right] = n^2 + \Theta(n) \text{ FLOPs}.
+\]
+
+\subsubsection{Case III}
+
+Suppose \( A \) is non-singular upper-triangular, \[
+    A = \begin{pmatrix}
+        a_{11} & a_{12} & \cdots & a_{1n} \\
+        0      & a_{22} & \cdots & a_{2n} \\
+        \vdots & \vdots & \ddots & \vdots \\
+        0      & 0      & \cdots & a_{nn}
+    \end{pmatrix}
+\]
+
+We must have \( \begin{cases}
+    a_{ij} = 0    & \text{if } i > j                     \\
+    a_{ii} \neq 0 & \text{since } A \text{ non-singular}
+\end{cases} \)
+
+\begin{itemize}
+    \item \( x_n = b_n / a_{n,n} \)
+    \item \( x_{n-1} = (b_{n-1} - a_{n-1,n} x_n) / a_{n-1,n-1} \)
+    \item \( x_{n-2} = (b_{n-2} - a_{n-2,n} x_n - a_{n-2,n-1} x_{n-1}) / a_{n-2,n-2} \)
+    \item \( \vdots \)
+    \item \( \displaystyle x_i = \left( b_i - \sum_{j=i+1}^{n} a_{ij} x_j \right) / a_{ii} \)
+\end{itemize}
+
+This algorithm is called \term{backward substitution}.
+
+\begin{algorithm}[H]
+    \begin{algorithmic}
+        \Function{BackwardSubstitution}{$A, b$}
+        \For{\( i = n \) \DownTo \( 1 \)}
+        \State \( sum = 0 \)
+        \For{\( j = i+1 \) \To \( n \)}
+        \State \( sum = sum + a_{ij} \cdot x_j \)
+        \EndFor
+        \State \( x_i = (b_i - sum) / a_{ii} \)
+        \EndFor
+        \State \Return \( x \)
+        \EndFunction
+    \end{algorithmic}
+\end{algorithm}
+
+The operation count will be the same as for forward substitution, \[
+    n^2 + \Theta(n) \text{ FLOPs}.
+\]
+
+\subsubsection{Case IV}
+
+What if \( A \) is dense? We can use Gaussian elimination to reduce \( A \) to a triangular form.
+
+\subsection{Gaussian Elimination}
+
+\begin{example}
+    Suppose we want to solve the linear system \[
+        \begin{pmatrix}
+            2 & 1 & 1 & 0 \\
+            4 & 3 & 3 & 1 \\
+            8 & 7 & 9 & 5 \\
+            6 & 7 & 9 & 8
+        \end{pmatrix}
+        \begin{pmatrix}
+            x_1 \\ x_2 \\ x_3 \\ x_4
+        \end{pmatrix}
+        =
+        \begin{pmatrix}
+            1 \\ 1 \\ -1 \\ 3
+        \end{pmatrix}
+    \]
+
+    Recall from linear algebra that elementary operations do not change the solution to the system. We can use the elementary row operation \[
+        R_j = R_j - m \cdot R_i
+    \] to convert \( A \) to an upper-triangular form.
+
+    \begin{enumerate}
+        \item \( R_2 = R_2 - 2 \cdot R_1 \qquad R_3 = R_3 - 4 \cdot R_1 \qquad R_4 = R_4 - 3 \cdot R_1 \)
+              \[
+                  \begin{pmatrix}
+                      2 & 1 & 1 & 0 \\
+                      0 & 1 & 1 & 1 \\
+                      0 & 3 & 5 & 5 \\
+                      0 & 4 & 6 & 8 \\
+                  \end{pmatrix}
+                  \vec{x}
+                  =
+                  \begin{pmatrix}
+                      1 \\ -1 \\ -5 \\ -6
+                  \end{pmatrix}
+              \]
+
+        \item \( R_3 = R_3 - 3 \cdot R_2 \qquad R_4 = R_4 - 4 \cdot R_2 \)
+
+              \[
+                  \begin{pmatrix}
+                      2 & 1 & 1 & 0 \\
+                      0 & 1 & 1 & 1 \\
+                      0 & 0 & 2 & 2 \\
+                      0 & 0 & 2 & 4 \\
+                  \end{pmatrix}
+                  \vec{x}
+                  =
+                  \begin{pmatrix}
+                      1 \\ -1 \\ -2 \\ -2
+                  \end{pmatrix}
+              \]
+
+        \item \( R_4 = R_4 - R_3 \)
+
+              \[
+                  \begin{pmatrix}
+                      2 & 1 & 1 & 0 \\
+                      0 & 1 & 1 & 1 \\
+                      0 & 0 & 2 & 2 \\
+                      0 & 0 & 0 & 2 \\
+                  \end{pmatrix}
+                  \vec{x}
+                  =
+                  \begin{pmatrix}
+                      1 \\ -1 \\ -2 \\ 0
+                  \end{pmatrix}
+              \]
+    \end{enumerate}
+
+    We now have a triangular system. We can use backward substitution to solve for \( x \). \[
+        \vec{x} = \begin{pmatrix}
+            1 \\ 0 \\ -1 \\ 0
+        \end{pmatrix}
+    \]
+
+    How could we program this algorithm?
+\end{example}
+
+\begin{algorithm}[H]
+    \begin{algorithmic}[1]
+        \Function{GaussianElimination}{$A, b$}
+        \State \( n \gets \text{size}(A) \)
+        \State \( ms \gets \texttt{[]} \) \Comment{Multipliers}
+        \For{\( i \gets 1 \) \To \( n-1 \)} \Comment{Going down the diagonal}
+        \For{\( j \gets i+1 \) \To \( n \)} \Comment{Below the diagonal}
+        \State \( m \gets A_{j,i} / A_{i,i} \)
+        \State \( ms[j,i] \gets m \)
+        % \State \( A_{j,i} = 0 \)
+        \For{\( k \gets i+1 \) \To \( n \)}
+        \State \( A_{j,k} \gets A_{j,k} - m \cdot A_{i,k} \)
+        \EndFor
+        % \State \( b_j = b_j - m \cdot b_i \)
+        \EndFor
+        \EndFor
+        \State \Return \( A, ms \)
+        \EndFunction
+    \end{algorithmic}
+\end{algorithm}
+
+\begin{remark}
+    The reason not to update \( b \), but rather to store the multipliers, is that often in practice we have multiple right-hand sides. We can then use the same multipliers to solve for all right-hand sides.
+\end{remark}
+
+What is the operation count for Gaussian elimination? We consider only the operations on \( A \), since the operations on \( b \) are negligible.
+
+\begin{itemize}
+    \item The inner most operation occurs on line 9, with 2 FLOPs.
+    \item They are repeated for \( k = i+1 \) to \( n \), \( \sum_{k=i+1}^n 2 \) FLOPs.
+    \item There is one more operation on line 6, with 1 FLOP.
+    \item The \( j \) loop is repeated for \( j = i+1 \) to \( n \), \( \sum_{j=i+1}^n \left( 1 + \sum_{k=i+1}^n 2 \right) \) FLOPs.
+    \item The outer loop is repeated for \( i = 1 \) to \( n-1 \), \( \sum_{i=1}^{n-1} \left( 1 + \sum_{j=i+1}^n \left( 1 + \sum_{k=i+1}^n 2 \right) \right) \) FLOPs.
+\end{itemize}
+
+We then simplify
+\begin{align*}
+    \operatorname{FLOP}
+     &
+    = \sum_{i=1}^{n-1} \left( 1 + \sum_{j=i+1}^n \left( 1 + \sum_{k=i+1}^n 2 \right) \right)
+    \\
+     &
+    = \sum_{i=1}^{n-1} \left( 1 + \sum_{j=i+1}^n \left( 1 + 2(n - i) \right) \right)
+    \\
+     &
+    = \sum_{i=1}^{n-1} \left[ (n - i) (1 + 2(n - i)) \right]
+\end{align*}
+
+Taking \( m = n - i \), we have
+\begin{align*}
+    \operatorname{FLOP}
+     &
+    = \sum_{m=1}^{n-1} m (1 + 2m)
+    \\
+     &
+    = \left( \sum_{m=1}^{n-1} m \right) + 2 \left( \sum_{m=1}^{n-1} m^2 \right)
+    \\
+     &
+    = \frac{n(n-1)}{2} + 2 \cdot \frac{2n^3 - 3n^2 + n}{6}
+    \\
+     &
+    = \frac{2n^3}{3} - \frac{n^2}{2} - \frac{n}{6}
+    \\
+     & = \frac{2}{3} n^3 + \Theta(n^2) \text{ FLOPs}
+\end{align*}
+
+\subsection{Gauss Transforms}
+
+\begin{definition}[Gauss Transformation Matrix]
+    A \term{\( n \times n \) Gauss transformation matrix} \( m_R \) is defined as \[
+        m_R = I - \vec{m}_r \cdot \vec{e}_r^\top
+    \] where \( m_R \in \R^n \) and \[
+        \vec{m}_r = \begin{pmatrix}
+            0 \\ \vdots \\ 0 \\ m_{r+1,r} \\ m_{r+2,r} \\ \vdots \\ m_{n,r}
+        \end{pmatrix}
+        \qquad \text{and} \qquad
+        \vec{e}_r = \begin{pmatrix}[l]
+            0 \\ \vdots \\ 0 \\ 1 \text{ \(r\)th row} \\ 0 \\ \vdots \\ 0
+        \end{pmatrix}
+    \]
+\end{definition}
+
+\begin{remark}
+    \begin{align*}
+        M_r
+         &
+        = I - m_r e_r^\top
+        \\
+         &
+        = I - \begin{pmatrix}
+                  0 &        &           &   &   &        &   \\
+                    & \ddots &           &   &   &        &   \\
+                    &        & 0         &   &   &        &   \\
+                    &        & m_{r+1,r} & 0 &   &        &   \\
+                    &        & m_{r+2,r} & 0 & 0 &        &   \\
+                    &        & \vdots    &   &   & \ddots &   \\
+                    &        & m_{n,r}   &   &   &        & 0
+              \end{pmatrix}
+        % \\
+        %  &
+        = \begin{pmatrix}
+              1 &        &            &   &   &        &   \\
+                & \ddots &            &   &   &        &   \\
+                &        & 1          &   &   &        &   \\
+                &        & -m_{r+1,r} & 1 &   &        &   \\
+                &        & -m_{r+2,r} & 0 & 1 &        &   \\
+                &        & \vdots     &   &   & \ddots &   \\
+                &        & -m_{n,r}   &   &   &        & 1
+          \end{pmatrix}
+    \end{align*}
+\end{remark}
+
+\begin{remark}
+    Gauss transforms have nice properties:
+    \begin{enumerate}
+        \item For indices \( r \leq s \), \[
+                  M_r M_s = I - \vec{m}_r \vec{e}_r^\top - \vec{m}_s \vec{e}_s^\top
+              \] (not a Gauss transform)
+
+        \item \[
+                  M_r^{-1} = I + \vec{m}_r \vec{e}_r^\top
+              \] (is a Gauss transform)
+
+        \item For any \(n-\)vector \( \vec{v} = [v_1, v_2, \ldots, v_n]^\top \), \begin{align*}
+                  M_r \vec{v}
+                   &
+                  = ( I - \vec{m}_r \vec{e}_r^\top) \vec{v}
+                  \\
+                   &
+                  = \vec{v} - \vec{m}_r (\vec{e}_r^\top \vec{v})
+                  \\
+                   &
+                  = \vec{v} - v_r \vec{m}_r
+                  \\
+                   &
+                  = \begin{pmatrix}
+                        v_1 \\ \vdots \\ v_{r} \\ v_{r+1} - v_r m_{r+1,r} \\ \vdots \\ v_n - v_r m_{n,r}
+                    \end{pmatrix}
+              \end{align*}
+    \end{enumerate}
+\end{remark}
+
+\begin{example}
+    Suppose \[
+        A = \begin{pmatrix}
+            2 & 1 & 1 & 0 \\ 4 & 3 & 3 & 1 \\ 8 & 7 & 9 & 5 \\ 6 & 7 & 9 & 8
+        \end{pmatrix}
+    \]
+
+    \begin{itemize}
+        \item Choose \[
+                  m_1 = \begin{pmatrix}
+                      0 \\ 2 \\ 4 \\ 3
+                  \end{pmatrix}
+                  \implies
+                  M_1 = \begin{pmatrix}
+                      1 & 0 & 0 & 0 \\ -2 & 1 & 0 & 0 \\ -4 & 0 & 1 & 0 \\ -3 & 0 & 0 & 1
+                  \end{pmatrix}
+              \]
+
+              We have \[
+                  M_1 A
+                  =
+                  \begin{pmatrix}
+                      1 & 0 & 0 & 0 \\ -2 & 1 & 0 & 0 \\ -4 & 0 & 1 & 0 \\ -3 & 0 & 0 & 1
+                  \end{pmatrix}
+                  \begin{pmatrix}
+                      2 & 1 & 1 & 0 \\ 4 & 3 & 3 & 1 \\ 8 & 7 & 9 & 5 \\ 6 & 7 & 9 & 8
+                  \end{pmatrix}
+                  =
+                  \begin{pmatrix}
+                      2 & 1 & 1 & 0 \\ 0 & 1 & 1 & 1 \\ 0 & 3 & 5 & 5 \\ 0 & 4 & 6 & 8
+                  \end{pmatrix}
+              \]
+
+        \item Choose \[
+                  m_2 = \begin{pmatrix}
+                      0 \\ 0 \\ 3 \\ 4
+                  \end{pmatrix}
+                  \implies
+                  M_2 = \begin{pmatrix}
+                      1 & 0 & 0 & 0 \\ 0 & 1 & 0 & 0 \\ 0 & -3 & 1 & 0 \\ 0 & -4 & 0 & 1
+                  \end{pmatrix}
+              \]
+
+              We have \[
+                  M_2 M_1 A
+                  =
+                  \begin{pmatrix}
+                      1 & 0 & 0 & 0 \\ 0 & 1 & 0 & 0 \\ 0 & -3 & 1 & 0 \\ 0 & -4 & 0 & 1
+                  \end{pmatrix}
+                  \begin{pmatrix}
+                      2 & 1 & 1 & 0 \\ 0 & 1 & 1 & 1 \\ 0 & 3 & 5 & 5 \\ 0 & 4 & 6 & 8
+                  \end{pmatrix}
+                  =
+                  \begin{pmatrix}
+                      2 & 1 & 1 & 0 \\ 0 & 1 & 1 & 1 \\ 0 & 0 & 2 & 2 \\ 0 & 0 & 2 & 4
+                  \end{pmatrix}
+              \]
+
+        \item Choose \[
+                  m_3 = \begin{pmatrix}
+                      0 \\ 0 \\ 0 \\ 1
+                  \end{pmatrix}
+                  \implies
+                  M_3 = \begin{pmatrix}
+                      1 & 0 & 0 & 0 \\ 0 & 1 & 0 & 0 \\ 0 & 0 & 1 & 0 \\ 0 & 0 & -1 & 1
+                  \end{pmatrix}
+              \]
+
+              We have \[
+                  M_3 M_2 M_1 A
+                  =
+                  \begin{pmatrix}
+                      1 & 0 & 0 & 0 \\ 0 & 1 & 0 & 0 \\ 0 & 0 & 1 & 0 \\ 0 & 0 & -1 & 1
+                  \end{pmatrix}
+                  \begin{pmatrix}
+                      2 & 1 & 1 & 0 \\ 0 & 1 & 1 & 1 \\ 0 & 0 & 2 & 2 \\ 0 & 0 & 2 & 4
+                  \end{pmatrix}
+                  =
+                  \begin{pmatrix}
+                      2 & 1 & 1 & 0 \\ 0 & 1 & 1 & 1 \\ 0 & 0 & 2 & 2 \\ 0 & 0 & 0 & 2
+                  \end{pmatrix}
+              \]
+    \end{itemize}
+
+    We end up with an upper-triangular matrix \[
+        U = M_3 M_3 M_1 A = \begin{pmatrix}
+            2 & 1 & 1 & 0 \\ 0 & 1 & 1 & 1 \\ 0 & 0 & 2 & 2 \\ 0 & 0 & 0 & 2
+        \end{pmatrix}
+    \]
+
+    This also implies \begin{align*}
+        A = (M_3 M_2 M_1)^{-1} U
+         &
+        = M_1^{-1} M_2^{-1} M_3^{-1} U
+        \\
+         &
+        = (I + \vec{m}_1 \vec{e}_1^\top) (I + \vec{m}_2 \vec{e}_2^\top) (I + \vec{m}_3 \vec{e}_3^\top) U
+         & \text{by property 2}
+        \\
+         &
+        =
+        \begin{pmatrix}
+            1 & 0 & 0 & 0 \\ 2 & 1 & 0 & 0 \\ 4 & 3 & 1 & 0 \\ 3 & 4 & 1 & 1
+        \end{pmatrix} U
+    \end{align*}
+    and we have an anti lower-triangular matrix \[
+        L = \begin{pmatrix}
+            1 & 0 & 0 & 0 \\ 2 & 1 & 0 & 0 \\ 4 & 0 & 1 & 0 \\ 3 & 0 & 0 & 1
+        \end{pmatrix}
+    \]
+
+    We can think of Gaussian Elimination as factoring \( A \) into \( LU \), where \( L \) is lower-triangular and \( U \) is upper-triangular.
+
+    Verify: \[
+        LU =
+        \begin{pmatrix}
+            1 & 0 & 0 & 0 \\ 2 & 1 & 0 & 0 \\ 4 & 3 & 1 & 0 \\ 3 & 4 & 1 & 1
+        \end{pmatrix}
+        \begin{pmatrix}
+            2 & 1 & 1 & 0 \\ 0 & 1 & 1 & 1 \\ 0 & 0 & 2 & 2 \\ 0 & 0 & 0 & 2
+        \end{pmatrix}
+        =
+        \begin{pmatrix}
+            2 & 1 & 1 & 0 \\ 4 & 3 & 3 & 1 \\ 8 & 7 & 9 & 5 \\ 6 & 7 & 9 & 8
+        \end{pmatrix}
+    \]
+\end{example}
+
+\section{Solving System of Linear Equations}
+
+\subsection{LU Factorization}
+
+How to solve \( A \vec{x} = \vec{b} \)?
+
+\begin{enumerate}
+    \item Factor \( A = LU \)
+
+          The operation cont is \[
+              \frac{2}{3} n^3 + \Theta(n^2) \text{ FLOPs}
+          \]
+
+          Then, we have \[
+              L(U \vec{x}) = \vec{b}
+          \]
+
+          Let \( \vec{y} = U\vec{x} \), we have an triangular system \[
+              L \vec{y} = \vec{b}
+          \]
+
+    \item Solve \( L \vec{y} = \vec{b} \) for \( \vec{y} \) using forward substitution.
+
+          The operation count is \[
+              n^2 + \Theta(n) \text{ FLOPs}
+          \]
+
+          Then, we have \[
+              U \vec{x} = \vec{y}
+          \]
+
+    \item Solve \( U \vec{x} = \vec{y} \) for \( \vec{x} \) using backward substitution.
+
+          The operation count is \[
+              n^2 + \Theta(n) \text{ FLOPs}
+          \]
+
+          The total operation count is \[
+              n^2 + \Theta(n) \text{ FLOPs}
+          \]
+
+    \item The total cost is \[
+              \frac{2}{3} n^3 + \Theta(n^2) \text{ FLOPs}
+          \]
+\end{enumerate}
+
+\begin{remark}
+    Now, suppose we are given a new problem \[
+        A \vec{z} = \vec{c} \qquad \text{for } \vec{z}
+    \] where \( A \) is the same as before, but \( \vec{c} \) is different.
+
+        {~~~}
+
+    Note that the output from step 1 depends solely on \( A \), and we do not need to recompute it. We \textit{skip the most expensive step}, and use the same \( L \) and \( U \) to solve for \( \vec{z} \) using forward and backward substitution.
+
+    \begin{itemize}
+        \item Solve \( L \vec{d} = \vec{c} \) for \( \vec{d} \) using forward substitution
+        \item Solve \( U \vec{z} = \vec{d} \) for \( \vec{z} \) using backward substitution
+    \end{itemize}
+
+    {~~~}
+
+    The total new cost is \[
+        2n^2 + \Theta(n) \text{ FLOPs}
+    \]
+\end{remark}
+
+\begin{remark}
+    How to reduce memory usage?
+
+    Note that
+    \begin{itemize}
+        \item \( L \) is unit lower triangular (diagonal is all 1s)
+        \item \( U \) is upper triangular, and
+        \item \( A \) is dense.
+    \end{itemize}
+
+    We can store \( L \) and \( U \) in a single matrix, for example, \[
+        \begin{pmatrix}
+            \color{blue} 2 & \color{blue} 1 & \color{blue} 1 & \color{blue} 0 \\
+            \color{red} 1  & \color{blue} 1 & \color{blue} 1 & \color{blue} 1 \\
+            \color{red} 4  & \color{red} 3  & \color{blue} 2 & \color{blue} 2 \\
+            \color{red} 3  & \color{red} 4  & \color{red} 1  & \color{blue} 2
+        \end{pmatrix}
+    \] where \[
+        {\color{red} L = \begin{pmatrix}
+                    1 & 0 & 0 & 0 \\
+                    2 & 1 & 0 & 0 \\
+                    4 & 3 & 1 & 0 \\
+                    3 & 4 & 1 & 1
+                \end{pmatrix}}
+        \qquad \text{ and } \qquad
+        {\color{blue} U = \begin{pmatrix}
+                2 & 1 & 1 & 0 \\
+                0 & 1 & 1 & 1 \\
+                0 & 0 & 2 & 2 \\
+                0 & 0 & 0 & 2
+            \end{pmatrix}}
+    \]
+\end{remark}
+
+\subsubsection{Edge-case}
+
+\begin{example}
+    Suppose we want to compute the LU factorization of \[
+        \begin{pmatrix}
+            0 & 1 \\ 1 & 0
+        \end{pmatrix}
+    \]
+
+    The algorithm fails from 0 division \[
+        m_{1,1} = \frac{1}{0}
+    \]
+
+    However, we could perform a row exchange \( R_1 \leftrightarrow R_2 \) to get \[
+        \begin{pmatrix}
+            1 & 0 \\ 0 & 1
+        \end{pmatrix}
+    \] which is now solvable.
+
+    We can use permutation matrix to represent row exchanges. For example, \[
+        P = \begin{pmatrix}
+            0 & 1 \\ 1 & 0
+        \end{pmatrix}
+    \] represents the row exchange \( R_1 \leftrightarrow R_2 \).
+\end{example}

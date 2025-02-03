@@ -644,7 +644,7 @@ If there is cancellation, we must have \( b^2 \approx 4ac \), which means their 
          & = \frac{x}{\sqrt{1+x} + 1}
     \end{align*} and since \( x > 0 \), there is no catastrophic cancellation. A trade off, however, is that this approach is slower than the na\"ive approach as we have 1 more operation.
 
-
+    \begin{algorithm}[H]
     \begin{algorithmic}
         \Function{f}{$x$}
         \If{\( x \geq 3 \)}
@@ -654,6 +654,7 @@ If there is cancellation, we must have \( b^2 \approx 4ac \), which means their 
         \EndIf
         \EndFunction
     \end{algorithmic}
+    \end{algorithm}
 \end{example}
 
 \begin{definition}[Numerically Stable Algorithm]\index{Numerically Stable Algorithm}
