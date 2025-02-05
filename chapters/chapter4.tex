@@ -377,7 +377,7 @@ Taking \( m = n - i \), we have
     \end{align*}
 \end{remark}
 
-\begin{remark}
+\begin{note}[Properties of Gauss Transforms]
     Gauss transforms have nice properties:
     \begin{enumerate}
         \item For indices \( r \leq s \), \[
@@ -405,7 +405,7 @@ Taking \( m = n - i \), we have
                     \end{pmatrix}
               \end{align*}
     \end{enumerate}
-\end{remark}
+\end{note}
 
 \begin{example}
     Suppose \[
@@ -655,9 +655,209 @@ How to solve \( A \vec{x} = \vec{b} \)?
         \end{pmatrix}
     \] which is now solvable.
 
-    We can use permutation matrix to represent row exchanges. For example, \[
-        P = \begin{pmatrix}
-            0 & 1 \\ 1 & 0
-        \end{pmatrix}
-    \] represents the row exchange \( R_1 \leftrightarrow R_2 \).
 \end{example}
+
+We can use permutation matrix to keep track row exchanges. The permutation matrix for the \(i\)-th permutation interchanging rows \( i, r_i \) is the identity matrix with rows \( i, r_i \) swapped.
+
+\begin{remark}
+    This is also the identity with \textbf{columns} \( i, r_i \) interchanged.
+\end{remark}
+
+\begin{example}
+    Consider \( 3 \times 3 \) matrices. \[
+        P_{2,3} = \begin{pmatrix}
+            1 & 0 & 0 \\
+            0 & 0 & 1 \\
+            0 & 1 & 0
+        \end{pmatrix}
+    \] is the permutation matrix that swaps rows 2 and 3.
+
+    We verify that \[
+        \begin{pmatrix}
+            1 & 0 & 0 \\
+            0 & 0 & 1 \\
+            0 & 1 & 0
+        \end{pmatrix}
+        \begin{pmatrix}
+            a & b & c \\
+            d & e & f \\
+            g & h & i
+        \end{pmatrix} =
+        \begin{pmatrix}
+            a & b & c \\
+            g & h & i \\
+            d & e & f
+        \end{pmatrix}
+    \]
+
+    What if we perform right-multiplication, i.e. \( A P_{2,3} \)? \[
+        \begin{pmatrix}
+            a & b & c \\
+            d & e & f \\
+            g & h & i
+        \end{pmatrix}
+        \begin{pmatrix}
+            1 & 0 & 0 \\
+            0 & 0 & 1 \\
+            0 & 1 & 0
+        \end{pmatrix} =
+        \begin{pmatrix}
+            a & c & b \\
+            d & f & e \\
+            g & i & h
+        \end{pmatrix}
+    \] which swaps columns 2 and 3.
+\end{example}
+
+\begin{remark}
+    We can use permutation matrices to keep track of row exchanges in LU factorization.
+
+    Suppose we have a permutation matrix \( P_{i, r_i} \) and a matrix \( A \).
+
+    \begin{itemize}
+        \item \( P_{i, r_i} A \) swaps \textit{rows} \( i, r_i \) in \( A \).
+        \item \( A P_{i, r_i} \) swaps \textit{columns} \( i, r_i \) in \( A \).
+    \end{itemize}
+\end{remark}
+
+\begin{note}[Facts]
+    Note that \[ P_{i, r_i}^{-1} = P_{i, r_i}^\top = P_{r_i, i}. \]
+\end{note}
+
+\begin{example}
+    Suppose after two steps of gaussian elimination, we have \[
+        \begin{pmatrix}
+            x_{11} & x_{12} & x_{13} & x_{14} & x_{15} \\
+            0      & x_{22} & x_{23} & x_{24} & x_{25} \\
+            0      & 0      & x_{33} & x_{34} & x_{35} \\
+            0      & 0      & x_{43} & x_{44} & x_{45} \\
+            0      & 0      & x_{53} & x_{54} & x_{55}
+        \end{pmatrix}
+    \]
+
+    \begin{itemize}
+        \item If \( x_{33} \neq 0 \), no interchanging is required, and \( P_{i, r_i} = I \).
+
+        \item However, if \( x_{33} = 0 \), we need to get the zero off the diagonal
+
+              We only consider the submatrix \[
+                  \begin{pmatrix}
+                      x_{33} & x_{34} & x_{35} \\
+                      x_{43} & x_{44} & x_{45} \\
+                      x_{53} & x_{54} & x_{55}
+                  \end{pmatrix}
+              \] since the rest of the matrix is already in upper-triangular form.
+    \end{itemize}
+\end{example}
+
+The gaussian elimination factorization becomes \[
+    M_{n-1} P_{n-1, r_{n-1}} \cdots M_2 P_{2, r_2} M_1 P_{1, r_1} A = U
+\] we can re-arrange to isolate the permutations from the eliminations.
+
+\begin{example}
+    Consider a \( 3 \times 3 \) case \[
+        M_2 P_2 M_1 P_1 A = U
+    \] with \[
+        P_2 = \begin{pmatrix}
+            1 & 0 & 0 \\ 0 & 0 & 1 \\ 0 & 1 & 0
+        \end{pmatrix} \qquad \text{and} \qquad
+        M_1 = \begin{pmatrix}
+            1 & 0 & 0 \\ 2 & 1 & 0 \\ 3 & 0 & 1
+        \end{pmatrix}
+    \]
+
+    We have \[
+        P_2 M_1 = \begin{pmatrix}
+            1 & 0 & 0 \\ 3 & 0 & 1 \\ 2 & 1 & 0
+        \end{pmatrix}
+    \] which is not a permutation matrix.
+
+    We can then write \[
+        P_2 M_1 P_2 = \begin{pmatrix}
+            1 & 0 & 0 \\ 2 & 1 & 0 \\ 3 & 0 & 1
+        \end{pmatrix}
+    \]
+
+    Since \( P_2^{-1} = P_2 \), we have \[
+        P_2 M_1 P_2 P_2 = P_2 M_1
+    \]
+
+    This allows us to re-write the factorization as \begin{align*}
+        U & = M_2 P_2 M_1 P_1 A                   \\
+          & = M_2 P_2 M_1 P_2 P_2 P_1 A           \\
+          & = M_2 \hat{M}_1 P_2 P_1 A
+          & \text{where } \hat{M}_1 = P_2 M_1 P_2
+    \end{align*}
+\end{example}
+
+For larger systems, we generalize
+\begin{align*}
+    U
+     &
+    = M_{n-1} P_{n-1} M_{n-2} P_{n-2} \cdots P_3 M_2 P_2 M_1 P_1 A
+    \\
+     &
+    = M_{n-1} P_{n-1} M_{n-2} P_{n-2} \cdots P_3 M_2 \hat{M}_1 P_2 P_1 A
+     & \text{where } \hat{M}_1 = P_2 M_1 P_2
+    \\
+     &
+    = M_{n-1} P_{n-1} M_{n-2} P_{n-2} \cdots P_3 \hat{M}_2 P_2 P_1 A
+     & \text{where } \hat{M}_2 = P_3 M_2 \hat{M}_1 P_3
+    \\
+     & \vdots
+    \\
+     &
+    = \hat{M}_{n-1} P_{n-1} P_{n-2} \cdots P_3 P_2 P_1 A
+\end{align*}
+
+We re-label as \[
+    L^{-1} P A = U
+\] where
+\begin{itemize}
+    \item \( L^{-1} = \hat{M}_{n-1} \)
+    \item \( P = P_{n-1} P_{n-2} \cdots P_3 P_2 P_1 \)
+\end{itemize}
+
+Our algorithm now becomes
+
+\begin{enumerate}
+    \item Find \( P, L, U \) such that \( PA = LU \)
+    \item Since \( A \vec{x} = \vec{b} \), \( P A \vec{x} = P \vec{b} \)
+    \item Solve \( LU \vec{x} = P \vec{b} \) for \( \vec{x} \)
+          \begin{enumerate}
+              \item Solve \( L \vec{y} = P \vec{b} \) for \( \vec{y} \) using forward substitution
+              \item Solve \( U \vec{x} = \vec{y} \) for \( \vec{x} \) using backward substitution
+          \end{enumerate}
+\end{enumerate}
+
+\begin{remark}
+    We ask the following questions
+    \begin{enumerate}
+        \item How to deduce a simple expression for \( P^{-1} \)
+        
+        \item How to store \( P \)?
+    \end{enumerate}
+\end{remark}
+
+% \begin{algorithm}[H]
+%     \begin{algorithmic}[1]
+%         \Function{LUFactorization}{$A$}
+%         \State \( n \gets \text{size}(A) \)
+%         \State \( L \gets I \)
+%         \State \( P \gets I \)
+%         \For{\( i \gets 1 \) \To \( n-1 \)}
+%         \State \( r \gets \text{argmax}_{i \leq j \leq n} |A_{j,i}| \)
+%         \State \( P_i \leftrightarrow P_r \)
+%         \State \( A \gets P_i A \)
+%         \For{\( j \gets i+1 \) \To \( n \)}
+%         \State \( m \gets A_{j,i} / A_{i,i} \)
+%         \State \( A_{j,i} \gets m \)
+%         \For{\( k \gets i+1 \) \To \( n \)}
+%         \State \( A_{j,k} \gets A_{j,k} - m \cdot A_{i,k} \)
+%         \EndFor
+%         \EndFor
+%         \EndFor
+%         \State \Return \( P, A \)
+%         \EndFunction
+%     \end{algorithmic}
+% \end{algorithm}
