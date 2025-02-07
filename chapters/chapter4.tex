@@ -744,7 +744,7 @@ We can use permutation matrix to keep track row exchanges. The permutation matri
                   \begin{pmatrix}
                       x_{33} & x_{34} & x_{35} \\
                       x_{43} & x_{44} & x_{45} \\
-                      x_{53} & x_{54} & x_{55}
+                      x_{53} & x_{54} & x_{54}
                   \end{pmatrix}
               \] since the rest of the matrix is already in upper-triangular form.
     \end{itemize}
@@ -753,6 +753,10 @@ We can use permutation matrix to keep track row exchanges. The permutation matri
 The gaussian elimination factorization becomes \[
     M_{n-1} P_{n-1, r_{n-1}} \cdots M_2 P_{2, r_2} M_1 P_{1, r_1} A = U
 \] we can re-arrange to isolate the permutations from the eliminations.
+
+\section{Gaussian Elimination with Pivoting}
+
+\subsection{Instability of Gaussian Elimination}
 
 \begin{example}
     Consider a \( 3 \times 3 \) case \[
@@ -834,30 +838,194 @@ Our algorithm now becomes
     We ask the following questions
     \begin{enumerate}
         \item How to deduce a simple expression for \( P^{-1} \)
-        
+              \begin{align*}
+                  P^{-1}
+                   &
+                  = ( P_{n-1} P_{n-2} \cdots P_3 P_2 P_1 )^{-1}
+                  \\
+                   & = P_1^{-1} P_2^{-1} \cdots P_{n-2}^{-1} P_{n-1}^{-1}
+                  \\
+                   & = P_1^\top P_2^\top \cdots P_{n-2}^\top P_{n-1}^\top
+                  \\
+                   & = ( P_{n-1} P_{n-2} \cdots P_3 P_2 P_1 )^\top
+                  \\
+                   & = P^\top
+              \end{align*}
+
         \item How to store \( P \)?
+
+              \begin{itemize}
+                  \item Na\"ively, we need \( n^2 \) entries to store \( P \).
+
+                  \item However, since \( P = P^\top \), we only need \( n \) entries, storying one non-zero entry per row.
+
+                        Define the \( n \)-vector \( \vec{p} \), where \( \vec{p}_i \) is the column index of the non-zero entry in row \( i \).
+
+                        For example, we could store \[
+                            \vec{p} = \begin{pmatrix}
+                                1 \\ 3 \\ 2
+                            \end{pmatrix}
+                            \qquad \text{for} \qquad
+                            P = \begin{pmatrix}
+                                1 & 0 & 0 \\ 0 & 0 & 1 \\ 0 & 1 & 0
+                            \end{pmatrix}
+                        \]
+              \end{itemize}
     \end{enumerate}
 \end{remark}
 
-% \begin{algorithm}[H]
-%     \begin{algorithmic}[1]
-%         \Function{LUFactorization}{$A$}
-%         \State \( n \gets \text{size}(A) \)
-%         \State \( L \gets I \)
-%         \State \( P \gets I \)
-%         \For{\( i \gets 1 \) \To \( n-1 \)}
-%         \State \( r \gets \text{argmax}_{i \leq j \leq n} |A_{j,i}| \)
-%         \State \( P_i \leftrightarrow P_r \)
-%         \State \( A \gets P_i A \)
-%         \For{\( j \gets i+1 \) \To \( n \)}
-%         \State \( m \gets A_{j,i} / A_{i,i} \)
-%         \State \( A_{j,i} \gets m \)
-%         \For{\( k \gets i+1 \) \To \( n \)}
-%         \State \( A_{j,k} \gets A_{j,k} - m \cdot A_{i,k} \)
-%         \EndFor
-%         \EndFor
-%         \EndFor
-%         \State \Return \( P, A \)
-%         \EndFunction
-%     \end{algorithmic}
-% \end{algorithm}
+\subsection{Pivoting Strategies}
+
+In Gaussian Elimination, keep track of interchange using the pivot vector \( piv \).
+
+\begin{enumerate}
+    \item Start with the pivot vector \( piv = \begin{pmatrix}
+              1 \\ 2 \\ \vdots \\ n
+          \end{pmatrix} \) representing \( I \)
+
+    \item For \( R_i \leftrightarrow R_j \), swap \( piv_i \) and \( piv_j \)
+
+    \item If at the end of GE, \( piv = (4, 1, 3, 2) \), then we have \[
+              P = \begin{pmatrix}
+                  0 & 0 & 0 & 1 \\
+                  1 & 0 & 0 & 0 \\
+                  0 & 0 & 1 & 0 \\
+                  0 & 1 & 0 & 0
+              \end{pmatrix}
+          \]
+\end{enumerate}
+
+\begin{note}[Implementation Issue]
+    Interchanging \( R_i \leftrightarrow R_{r_i} \), we do not want to mechanically interchanging via \[
+        a_{i, j} \leftrightarrow a_{r_i, j}
+    \] Instead, we could do \textbf{indirect addressing} via the pivot vector \( piv \).
+
+    Suppose we swap \( piv(i) \) and \( piv(j) \), then a reference to \( a(i, j) \) becomes a reference to \( a(piv(i), j) \).
+\end{note}
+
+\subsubsection{A Note on Matrix Multiplication}
+
+\textbf{Order of Multiplication Matters}
+
+Suppose we multiple \( A \in \R^{m \times n} \) by \( B \in \R^{n \times p} \) to get \( C = AB \), we have \( C \in \R^{m \times p} \) with \[
+    c_{i, j} = \sum_{k=1}^n a_{i, k} b_{k, j}
+\] The operation count would be \[
+    2 mnp \text{ FLOPs}
+\]
+Now, suppose we compute \[
+    A_{n \times 1} = Q_{n \times n} R_{n \times n} S_{n \times 1}
+\]
+\begin{itemize}
+    \item If we compute \( (QR)S \), the operation count is \[
+              2n^3 + 2n^2 \text{ FLOPs}
+          \]
+
+    \item However, if we compute \( Q(RS) \), the operation count is \[
+              4n^2 \text{ FLOPs}
+          \]
+
+          This is roughly half the cost of \( (QR)S \).
+\end{itemize}
+
+{~~~}
+
+\noindent
+\textbf{Inverse is Costly}
+
+Suppose we have a non-singular \( M \), and we want to compute \[
+    x = M^{-1} \vec{y} + \vec{z}
+\]
+
+\begin{itemize}
+    \item Find \( M^{-1} \) by solving \( MW = I \)
+
+          This step will cost \( \frac{2}{3} n^3 + \Theta(n^2) \) FLOPs for factorization, and \( n \left( 2n^2 + \Theta(n) \right) \) FLOPs for solving.
+
+          This requires a total of \( \frac{8}{3} n^3 + \Theta(n^2) \) FLOPs.
+
+    \item Compute \( M^{-1} \vec{y} \), which requires \( 2n^2 \) FLOPs.
+
+    \item We add \( \vec{z} \), which requires \( n \) FLOPs.
+\end{itemize}
+
+We could alternatively convert this problem into solving a linear system.
+
+Let \( \vec{c} = M^{-1} \vec{y} \), then \[
+    M\vec{c} = \vec{y}
+\]
+
+We could find \( \vec{c} \) with \( \frac{2}{3} n^3 + \Theta(n^2) + 2n^2 + \Theta(n) = \frac{2}{3} n^3 + 3n^2 + \Theta(n) \) FLOPs.
+
+This is about 4 times cheaper than the direct method.
+
+\subsubsection{Accessing the Accuracy of a Solution}
+
+Suppose we want to solve \( A \vec{x} = \vec{b} \) with \[
+    A = \begin{pmatrix}
+        0.780 & 0.563 \\ 0.913 & 0.659
+    \end{pmatrix}
+    \qquad \text{and} \qquad
+    \vec{b} = \begin{pmatrix}
+        0.217 \\ 0.254
+    \end{pmatrix}
+\]
+
+Suppose also we have two solutions \[
+    \hat{\vec{x}} = \begin{pmatrix}
+        0.341 \\ -0.087
+    \end{pmatrix}
+    \qquad \text{and} \qquad
+    \tilde{\vec{x}} = \begin{pmatrix}
+        0.999 \\ -1.001
+    \end{pmatrix}
+\]
+Which answer is closer to the solution? We could compute the residual and compare the norms of the residuals.
+
+\begin{definition}[Residual]\index{Residual}
+    The \term{residual} of a solution \( \vec{x} \) to \( A \vec{x} = \vec{b} \) is \[
+        \vec{r} = \vec{b} - A \vec{x}
+    \] It measures how much the solution does not satisfy the equation.
+\end{definition}
+
+With the two solutions, we have
+\begin{align*}
+    \hat{\vec{r}}
+     & = \vec{b} - A \hat{\vec{x}}
+     &
+    \tilde{\vec{x}}
+     & = \vec{b} - A \tilde{\vec{x}}
+    \\
+     & = \begin{bmatrix}
+             0.000~001 \\ 0
+         \end{bmatrix}
+     &
+     & = \begin{bmatrix}
+             0.001~343 \\ 0.001~572
+         \end{bmatrix}
+\end{align*}
+
+We conclude that \( \hat{x} \) is a better solution.
+
+However, if we take a look at the true solution \[
+    x^\ast = \begin{pmatrix} 1 \\ -1 \end{pmatrix}
+\] we have 
+\begin{align*}
+    \hat{e}
+     & = \hat{x} - x^\ast
+     &
+    \tilde{e}
+        & = \tilde{x} - x^\ast
+    \\
+        & = \begin{bmatrix}
+                -0.659 \\ 0.913
+            \end{bmatrix}
+        &
+        & = \begin{bmatrix}
+                -0.001 \\ 0.001
+            \end{bmatrix}
+\end{align*}
+and we see that \( \tilde{x} \) is a better solution.
+
+\begin{remark}
+    A small residual need not imply an accurate solution.
+\end{remark}
