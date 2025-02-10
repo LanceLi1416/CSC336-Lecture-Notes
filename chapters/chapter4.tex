@@ -1008,24 +1008,174 @@ We conclude that \( \hat{x} \) is a better solution.
 
 However, if we take a look at the true solution \[
     x^\ast = \begin{pmatrix} 1 \\ -1 \end{pmatrix}
-\] we have 
+\] we have
 \begin{align*}
     \hat{e}
      & = \hat{x} - x^\ast
      &
     \tilde{e}
-        & = \tilde{x} - x^\ast
+     & = \tilde{x} - x^\ast
     \\
-        & = \begin{bmatrix}
-                -0.659 \\ 0.913
-            \end{bmatrix}
-        &
-        & = \begin{bmatrix}
-                -0.001 \\ 0.001
-            \end{bmatrix}
+     & = \begin{bmatrix}
+             -0.659 \\ 0.913
+         \end{bmatrix}
+     &
+     & = \begin{bmatrix}
+             -0.001 \\ 0.001
+         \end{bmatrix}
 \end{align*}
 and we see that \( \tilde{x} \) is a better solution.
 
 \begin{remark}
     A small residual need not imply an accurate solution.
+\end{remark}
+
+We try to explain the phenomenon by looking at the condition number of the matrix \( A \).
+
+Suppose we solve \( A\vec{x} = \vec{b} \), the exact solution is \( \vec{x}^* \), and we have an approximate solution \( \bar{\vec{x}} \).
+
+\begin{itemize}
+    \item Define \( \bar{\vec{b}} = A \bar{\vec{x}} \) the right hand side for solving \( A \vec{x} = \vec{b} \) that has solution \( \bar{\vec{x}} \).
+
+    \item Define \( \bar{\vec{r}} = \vec{b} - \bar{\vec{b}} \) the residual for the approximate solution.
+\end{itemize}
+
+Since \( A \bar{\vec{x}} = \bar{\vec{b}} \) and \( A \vec{x}^* = \vec{b} \), we have \[
+    A(\bar{\vec{x}} - \vec{x}^*) = \bar{\vec{b}} - \vec{b} = -\bar{\vec{r}}
+\]
+
+We are interested in the error \[
+    \bar{\vec{e}} = \bar{\vec{x}} - \vec{x}^*
+\]
+
+We have \begin{align*}
+    A \bar{\vec{e}} & = -\bar{\vec{r}}        \\
+    \bar{\vec{e}}   & = -A^{-1} \bar{\vec{r}}
+\end{align*}
+
+To convert the absolute error into a scalar quantity, we use the norm \[
+    \| \bar{\vec{e}} \| = \left\| -A^{-1} \bar{\vec{r}} \right\| \leq \left\| A^{-1} \right\| \cdot \| \bar{\vec{r}} \|
+\]
+
+Moreover, we know that \begin{align*}
+    A \vec{x}^*                  & = \vec{b}                  \\
+    \left\| A \vec{x}^* \right\| & = \left\| \vec{b} \right\|
+\end{align*} and so \[
+    \| A \| \cdot \| \vec{x}^* \| \geq \| \| A \vec{x}^* \| \| = \| \vec{b} \|
+\]
+
+Thus, we have \begin{align*}
+    \frac{\left\| \bar{\vec{x}} - \vec{x}^* \right\|}{\left\| A \right\| \cdot \left\| \vec{x}^* \right\|}
+     & \leq \frac{\left\| A^{-1} \right\| \cdot \left\| \bar{\vec{r}} \right\|}{\left\| \bar{b} \right\|}                                   \\
+    \frac{\left\| \bar{\vec{x}} - \vec{x}^* \right\|}{\left\| \vec{x}^* \right\|}
+     & \leq \left( \left\| A \right\| \cdot \left\| A^{-1} \right\| \right) \frac{\left\| \bar{\vec{r}} \right\|}{\left\| \vec{b} \right\|} \\
+     & \leq \| A \| \| A^{-1} \|
+\end{align*}
+
+\( \| A \| \| A^{-1} \| \) is the \term{normwise relative error}\index{Normwise relative error} in computed solution, compared to the \term{nromwise relative residual}\index{Normwise relative residual} (relative to right hand side \( \vec{b} \)).
+
+The quantity \[
+    \| A \| \| A^{-1} \|
+\] is called the \term{condition number} of the matrix \( A \).
+
+\begin{remark}
+    If the relative residual in the computed solution is small, and the condition number of the matrix is small, then the relative error in the computed solution is small, and the solution is accurate.
+\end{remark}
+
+\begin{remark}[Vector Norme]
+    \[
+        \| \cdot \|: \R^n \to \R^{_\geq 0}
+    \]
+
+    \begin{itemize}
+        \item Positive semi-definite
+
+              \( \| \vec{x} \| \geq 0 \) and \( \| \vec{x} \| = 0 \) if and only if \( \vec{x} = \vec{0} \)
+
+        \item Homogeneous
+
+              \( \| \alpha \vec{x} \| = | \alpha | \| \vec{x} \| \) for all \( \alpha \in \R \)
+
+        \item Triangle Inequality
+
+              For all \( \vec{x}, \vec{y} \in \R^n \), \( \| \vec{x} + \vec{y} \| \leq \| \vec{x} \| + \| \vec{y} \| \)
+    \end{itemize}
+
+    There are many norms, but we will focus on the \( p \)-norms.
+    \begin{itemize}
+        \item The Manhattan norm (1-norm) \[
+                  \| \vec{x} \|_1 = \sum_{i=1}^n | x_i |
+              \]
+
+        \item The Euclidean norm (2-norm) \[
+                  \| \vec{x} \|_2 = \sqrt{\sum_{i=1}^n x_i^2}
+              \]
+
+        \item The infinity norm \[
+                  \| \vec{x} \|_\infty = \max_{1 \leq i \leq n} | x_i |
+              \]
+    \end{itemize}
+\end{remark}
+
+\begin{remark}[Matrix Norms]
+    \[
+        \| \cdot \|: \R^{n \times n} \to \R^{_\geq 0}
+    \]
+
+    \begin{itemize}
+        \item Positive semi-definite
+
+              \( \| A \| \geq 0 \) and \( \| A \| = 0 \) if and only if \( A = 0 \)
+
+        \item Homogeneous
+
+              \( \| \alpha A \| = | \alpha | \| A \| \) for all \( \alpha \in \R \)
+
+        \item Triangle Inequality
+
+              For all \( A, B \in \R^{n \times n} \), \( \| A + B \| \leq \| A \| + \| B \| \)
+
+        \item Cauchy-Schwarz Inequality
+
+              For all \( A, B \in \R^{n \times n} \), \( \| AB \| \leq \| A \| \| B \| \)
+    \end{itemize}
+
+    The induced matrix norm is \[
+        \| A \| = \max_{\| \vec{x} \| = 1} \| A \vec{x} \|
+    \]
+
+    That is, consider all vectors in the unit circle and apply \( A \) to them. The maximum value of the norm of the resulting vectors is the induced matrix norm.
+
+    \begin{figure}[H]
+        \centering
+        \begin{tikzpicture}
+            \draw[->] (-1.5, 0) -- (1.5, 0) node[right] {\( x \)};
+            \draw[->] (0, -1.5) -- (0, 1.5) node[above] {\( y \)};
+            \draw (0, 0) circle (1);
+            \draw[->] (0, 0) -- (0.707, 0.707) node[above right] {\( \vec{x} \)};
+        \end{tikzpicture}
+        \begin{tikzpicture}
+            \draw[->] (-1.5, 0) -- (1.5, 0) node[right] {\( x \)};
+            \draw[->] (0, -1.5) -- (0, 1.5) node[above] {\( y \)};
+            % Ellipse, rotated 30 degrees
+            \draw[rotate=30] (0, 0) ellipse (1.5 and 1);
+            \draw[->] (0, 0) -- (1.299, 0.75) node[above right] {\( A\vec{x} \)};
+        \end{tikzpicture}
+    \end{figure}
+
+    % There are many norms, but we will focus on the \( p \)-norms.
+
+    % \begin{itemize}
+    %     \item The 1-norm \[
+    %               \| A \|_1 = \max_{1 \leq j \leq n} \sum_{i=1}^n | a_{i, j} |
+    %           \]
+
+    %     \item The 2-norm \[
+    %               \| A \|_2 = \sqrt{\lambda_{\max} (A^\top A)}
+    %           \] where \( \lambda_{\max} (A^\top A) \) is the largest eigenvalue of \( A^\top A \).
+
+    %     \item The infinity norm \[
+    %               \| A \|_\infty = \max_{1 \leq i \leq n} \sum_{j=1}^n | a_{i, j} |
+    %           \]
+    % \end{itemize}
 \end{remark}
