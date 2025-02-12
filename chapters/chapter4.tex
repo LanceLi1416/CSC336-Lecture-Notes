@@ -1140,8 +1140,8 @@ The quantity \[
               For all \( A, B \in \R^{n \times n} \), \( \| AB \| \leq \| A \| \| B \| \)
     \end{itemize}
 
-    The induced matrix norm is \[
-        \| A \| = \max_{\| \vec{x} \| = 1} \| A \vec{x} \|
+    We use induced norms for matrices, for example, \[
+        \| A \|_1 = \max_{\| \vec{x} \| = 1} \| A \vec{x} \|
     \]
 
     That is, consider all vectors in the unit circle and apply \( A \) to them. The maximum value of the norm of the resulting vectors is the induced matrix norm.
@@ -1163,19 +1163,167 @@ The quantity \[
         \end{tikzpicture}
     \end{figure}
 
-    % There are many norms, but we will focus on the \( p \)-norms.
+    Induced norms are
 
-    % \begin{itemize}
-    %     \item The 1-norm \[
-    %               \| A \|_1 = \max_{1 \leq j \leq n} \sum_{i=1}^n | a_{i, j} |
-    %           \]
+    \begin{itemize}
+        \item The 1-norm \begin{align*}
+                  \| A \|_1
+                   & = \max_{\| \vec{x} \|_1 = 1} \| A \vec{x} \|_1                    \\
+                   & = \max \text{absolute column sum}                                 \\
+                   & = \max_{i \leq j \leq n} \left( \sum_{i=1}^n | a_{i, j} | \right) \\
+              \end{align*}
 
-    %     \item The 2-norm \[
-    %               \| A \|_2 = \sqrt{\lambda_{\max} (A^\top A)}
-    %           \] where \( \lambda_{\max} (A^\top A) \) is the largest eigenvalue of \( A^\top A \).
+        \item The 2-norm
+              \begin{align*}
+                  \| A \|_2 = \sqrt{{\lambda_{\max} (A^\top A)}}
+              \end{align*}
 
-    %     \item The infinity norm \[
-    %               \| A \|_\infty = \max_{1 \leq i \leq n} \sum_{j=1}^n | a_{i, j} |
-    %           \]
-    % \end{itemize}
+        \item The infinity norm
+              \begin{align*}
+                  \| A \|_\infty
+                   & = \max_{\| \vec{x} \|_\infty = 1} \| A \vec{x} \|_\infty          \\
+                   & = \max \text{absolute row sum}                                    \\
+                   & = \max_{1 \leq i \leq n} \left( \sum_{j=1}^n | a_{i, j} | \right)
+              \end{align*}
+    \end{itemize}
+
+    Another useful norm is the \term{Frobenius norm}\index{Frobenius Norm} \[
+        \| A \|_F = \sqrt{\sum_{i=1}^n \sum_{j=1}^n {a_{i, j}}^2}
+    \]
 \end{remark}
+
+\begin{example}
+    We revisit the example, where \[
+        A = \begin{pmatrix}
+            0.780 & 0.563 \\ 0.913 & 0.659
+        \end{pmatrix}
+    \]
+
+    We have \[
+        \| A \|_\infty = 1.572
+    \]
+
+    We have defined \[
+        \kappa(A) = \| A \| \| A^{-1} \|
+    \] but we did not define which norm to use. We could have different condition numbers for different norms. \[
+        \kappa_\infty(A) = \| A \|_\infty \| A^{-1} \|_\infty
+    \]
+
+    From linear algebra, we know that \textbf{for a \( 2 \times 2 \) matrix} \[
+        M = \begin{pmatrix}
+            a & b \\ c & d
+        \end{pmatrix}
+    \] we have its inverse \[
+        M^{-1} = \frac{1}{ad - bc} \begin{pmatrix}
+            d & -b \\ -c & a
+        \end{pmatrix}
+    \]
+
+    Thus, we have \[
+        A^{-1} = \frac{1}{0.780 \cdot 0.659 - 0.563 \cdot 0.913} \begin{pmatrix}
+            0.659 & -0.563 \\ -0.913 & 0.780
+        \end{pmatrix}
+    \] so \[
+        \| A^{-1} \|_\infty \approx 1.693 \times 10^6
+    \] and hence the conditional number \[
+        \kappa_\infty(A) \approx 2.66 \times 10^6
+    \]
+
+    This shows that solving the system is ill-conditioned.
+
+    The relative error in our compute solution is bounded above by \[
+        2.66 \times 10^6 \cdot \text{ relative residual in computed solution}
+    \]
+\end{example}
+
+How small can the condition number be? There is a relation between condition number and near-singularity.
+
+\begin{align*}
+    \kappa(A)
+     & = \| A \| \cdot \| A^{-1} \| \\
+     & \geq \| A A^{-1} \|          \\
+     & = \| I \|                    \\
+     & = 1
+\end{align*}
+
+The condition number is bounded below by 1, and the closer it is to 1, the better conditioned the matrix is.
+
+\begin{example}
+    We consider another system \[
+        A \vec{x} = \vec{b}
+    \] where \[
+        \begin{pmatrix}
+            1.0 \times 10^{-4} & 1 \\ 1 & 1
+        \end{pmatrix}
+        \begin{pmatrix}
+            x_1 \\ x_2
+        \end{pmatrix}
+        =
+        \begin{pmatrix}
+            1 \\ 2
+        \end{pmatrix}
+    \]
+
+    The exact LU factorization yields \[
+        L = \begin{pmatrix}
+            1 & 0 \\ 1.0 \times 10^{-4} & 1
+        \end{pmatrix}
+        \qquad \text{and} \qquad
+        U = \begin{pmatrix}
+            1.0 \times 10^{-4} & 1 \\ 0 & -9.999
+        \end{pmatrix}
+    \]
+
+    With forward solve,
+    \begin{align*}
+        L\vec{y} & = \vec{b} \\
+        y_1      & = 1       \\
+        y_2      & = -9.998
+    \end{align*}
+    and then with backward solve,
+    \begin{align*}
+        U\vec{x} & = \vec{y}           \\
+        x_2      & = \frac{9998}{9999} \\
+        x_1      & = \frac{1000}{9999}
+    \end{align*}
+
+    Now, suppose we get \[
+        \bar{L} = \begin{pmatrix}
+            1.00 \times 10^0 & 0 \\ 1.00 \times 10^4 & 1.00 \times 10^0
+        \end{pmatrix}
+        \qquad \text{and} \qquad
+        \bar{U} = \begin{pmatrix}
+            1.00 \times 10^{-4} & 1.00 \times 10^0 \\ 0 & 1.00 \times 10^4
+        \end{pmatrix}
+    \]
+    and we compute
+    \begin{align*}
+        \bar{y}_1
+         & = 1.00 \times 10^1                                               \\
+        \bar{y}_2
+         & = fl\left( \frac{2 - 1.00 \times 10^4}{1.00 \times 10^0} \right)
+        = -1.00 \times 10^4
+    \end{align*} and then
+    \begin{align*}
+        \bar{x}_2 & = 1.00 \times 10^0 \\
+        \bar{x}_1 & = 0.00 \times 10^0
+    \end{align*}
+
+    While \( \bar{x}_2 \) is accurate, \( \bar{x}_1 \) is not.
+
+    We first check if the matrix is ill-conditioned. We have \[
+        \| A \|_\infty = 2
+    \] and \[
+        \| A^{-1} \|_\infty = \left| \frac{1}{1.0 \times10^{-4} - 1} \right| 2 = 2
+    \] so \[
+        \kappa_\infty(A) = 4
+    \]
+
+    The large error is not due to ill-conditioning. 
+
+    We observe that \[
+        x_1 = \frac{1.00 - 1.00}{1.0 \times 10^-4}
+    \] and we see that we have catastrophic cancellation here.
+
+    We can resolve this issue by doing a row-interchange.
+\end{example}
