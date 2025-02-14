@@ -874,7 +874,7 @@ Our algorithm now becomes
     \end{enumerate}
 \end{remark}
 
-\subsection{Pivoting Strategies}
+% \subsection{Pivoting Strategies}
 
 In Gaussian Elimination, keep track of interchange using the pivot vector \( piv \).
 
@@ -1303,6 +1303,7 @@ The condition number is bounded below by 1, and the closer it is to 1, the bette
         \bar{y}_2
          & = fl\left( \frac{2 - 1.00 \times 10^4}{1.00 \times 10^0} \right)
         = -1.00 \times 10^4
+         & \text{error}
     \end{align*} and then
     \begin{align*}
         \bar{x}_2 & = 1.00 \times 10^0 \\
@@ -1319,11 +1320,142 @@ The condition number is bounded below by 1, and the closer it is to 1, the bette
         \kappa_\infty(A) = 4
     \]
 
-    The large error is not due to ill-conditioning. 
+    The large error is not due to ill-conditioning.
 
     We observe that \[
         x_1 = \frac{1.00 - 1.00}{1.0 \times 10^-4}
     \] and we see that we have catastrophic cancellation here.
 
-    We can resolve this issue by doing a row-interchange.
+    We also observe that \[
+        A = LU
+    \] where \[
+        \kappa(L) \approx 1.0 \times 10^8
+        \qquad{\text{and}}\qquad
+        \kappa(U) \approx 1.0 \times 10^8
+    \] so in fact we replaced a well conditioned problem with an ill-conditioned one.
 \end{example}
+
+\begin{note}[Fact]
+    Whenever multipliers are large (because diagonal elements are relatively small) a loss of accuracy can be observed.
+\end{note}
+
+\subsection{Partial Pivoting}
+
+A solution to this issue is to try reordering the equations.
+
+\begin{example}[Cont.]
+    We perform row exchange \( R_1 \leftrightarrow \R_2 \), \[
+        \begin{pmatrix}
+            1 & 1 \\ 1 \times 10^{-4} & 0
+        \end{pmatrix} \begin{pmatrix}
+            x_1 \\ x_2
+        \end{pmatrix} = \begin{pmatrix}
+            2 \\ 1
+        \end{pmatrix}
+    \] and we obtain \[
+        L = \begin{pmatrix}
+            1.00 & 0 \\ 1.00 \times 10^{-4} & 1.00
+        \end{pmatrix}
+        \qquad \text{and} \qquad
+        U = \begin{pmatrix}
+            1,00 & 1.00 \\ 0 & fl(1 - 1 \times 10^{-4}) = 1.00
+        \end{pmatrix}
+    \] so \[
+        \kappa(L) = 1
+        \qquad \text{and} \qquad
+        \kappa(U) = 4
+    \]
+
+    This way, we have a well-conditioned problem.
+
+    We now have \[
+        \begin{pmatrix}
+            y_1 \\ y_2
+        \end{pmatrix} = \begin{pmatrix}
+            2.00 \\ 1.00
+        \end{pmatrix}
+        \qquad \text{and then} \qquad
+        \begin{pmatrix}
+            x_1 \\ x_2
+        \end{pmatrix} = \begin{pmatrix}
+            1.00 \\ 1.00
+        \end{pmatrix}
+    \] which is the correct floating point representation of the exact solution.
+\end{example}
+
+\begin{definition}[Pivot Position]\index{Pivot Position}
+    The \term{pivot position} is the position in the matrix that is used to eliminate the other elements in the column.
+\end{definition}
+
+Suppose we have a matrix \[
+    \begin{pmatrix}
+        \times & \times & \times & \times & \times \\
+        0      & \times & \times & \times & \times \\
+        0      & 0      & \times & \times & \times \\
+        0      & 0      & \times & \times & \times \\
+        0      & 0      & \times & \times & \times \\
+    \end{pmatrix}
+\]
+
+We interchange \( R_i, R_{r_i} \) using \( P_{i, r_i} \) to move small value off of diagonal.
+
+Choose interchange rows \( r_i \) such that \( \| a_{r_i, i} \| \geq \| a -{j, i} \| \) for all \( j \) from \( i \) to \( n \).
+
+\begin{itemize}
+    \item Guarantees multipliers are \( \geq 1 \) in size
+    \item Do rows interchanges to ensure multipliers are \( \leq 1 \)
+\end{itemize}
+
+\begin{note}[Fact]
+    In practice, when row interchanges are used, the Gaussian Elimination algorithm is \textbf{stable}. and guarantees approximate solutions with relative errors \( \frac{\| \vec{r} \|}{\| \vec{b} \|} \approx C_n \cdot \varepsilon_{\text{mach}} \) where \( C_n \) is a small constant dependent on \( n \).
+
+    Thus, \[
+        \frac{\| \vec{x} - \vec{x}^* \|}{ \| \vec{x}^* \|} \leq \kappa(A) \cdot \varepsilon_{\text{mach}} \approx \kappa(A) \cdot C_n \cdot \varepsilon_{\text{mach}}
+    \]
+\end{note}
+
+\begin{remark}[Rule of Thumb]
+    Then number of bits of accuracy in the computed solution is approximately \( P - \lceil \log_{\beta} \kappa(A) \rceil \), where \( P \) is the precision of the floating point system.
+\end{remark}
+
+\begin{remark}[Terms]
+    Row interchanges, row pivoting, and partial pivoting are all the same thing.
+\end{remark}
+
+\subsection{Complete Pivoting}
+
+In row pivoting, we only search the columns, while in complete pivoting, we search the entire un-eliminated submatrix \[
+    \begin{pmatrix}
+        \times & \times            & \times
+               & \times            & \times            \\
+        0      & \times            & \times
+               & \times            & \times            \\
+        0      & 0                 & \color{red}\times
+               & \color{red}\times & \color{red}\times \\
+        0      & 0                 & \color{red}\times
+               & \color{red}\times & \color{red}\times \\
+        0      & 0                 & \color{red}\times
+               & \color{red}\times & \color{red}\times \\
+    \end{pmatrix}
+\]
+
+Suppose \( | a_{s, t} | > | a_{i, j} | \) for al \( i, j, s, t \) in the un-eliminated submatrix.
+
+In complete pivoting, we interchange to put \( a_{s, t} \) in the pivot position.
+
+Our factorization becomes \[
+    PAQ = LU
+\] where
+\begin{itemize}
+    \item \( P \) is a permutation matrix for row interchanges
+    \item \( Q \) is a permutation matrix for column interchanges
+\end{itemize}
+\begin{align*}
+    A \vec{x}         & = \vec{b}  \\
+    PA QQ^\top \vec{x} = P\vec{b}  \\
+    LU Q^\top \vec{x} & = P\vec{b} \\
+\end{align*}
+
+\begin{remark}[Considerations]
+    Complete pivoting is not always necessary, is more computationally expensive than partial pivoting since we need to search in 2D space instead of 1D space.
+\end{remark}
