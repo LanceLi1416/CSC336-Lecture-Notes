@@ -1459,3 +1459,33 @@ Our factorization becomes \[
 \begin{remark}[Considerations]
     Complete pivoting is not always necessary, is more computationally expensive than partial pivoting since we need to search in 2D space instead of 1D space.
 \end{remark}
+
+\begin{proof}
+    WTS \( \| A \|_\infty \) is the max absolute row sum of \( A \).
+
+    Let \( \vec{x} \) be a unit vector, then \[
+        \| A \|_\infty = \max_{\| \vec{x} \| = 1} \| A \vec{x} \|_\infty
+    \] and \[
+        \| \vec{x} \|_\infty = \max_{1 \leq i \leq n} | x_i |
+    \]
+
+    Let \( \vec{x} \) be such that \( \| \vec{x} \| = 1 \) and write \( A = [ \vec{a}_1, \vec{a}_2, \ldots, \vec{a}_n ] \) where \( \vec{a}_i \) is the \( i \)-th column of \( A \).
+
+    Then, \[
+        A \vec{x} = x_1 \vec{a}_1 + x_2 \vec{a}_2 + \cdots + x_n \vec{a}_n = \sum_{j=1}^n x_j \vec{a}_j
+    \] and \[
+        ( A \vec{x} )_i = \sum_{j=1}^n x_j a_{i, j}
+    \] so \[
+        \| A \|_\infty = \max_{1 \leq i \leq n} | (Ax)_i | = \max_{1 \leq i \leq n} \left| \sum_{j=1}^n x_j a_{i, j} \right|
+    \]
+
+    How to maximize for \( \| \vec{x} \|_\infty = 1 \)?
+
+    For each \( 1 \leq i \leq n \), maximize by taking \( x_j = 1 \cdot \operatorname{sign}(a_{ij}) \). Then, \[
+        x_j a_{ij} = | a_{ij} |
+    \] and so \[
+        \left| \sum_{j=1}^n x_j a_{ij} \right| = \sum_{j=1}^n | a_{ij} |
+    \] and so \[
+        \| A \|_\infty = \max_{1 \leq i \leq n} \sum_{j=1}^n | a_{ij} |
+    \] which is the max absolute row sum of \( A \).
+\end{proof}
