@@ -153,7 +153,9 @@
     \] there exists a unique polynomial of degree at less than \( m \) that interpolates the data.
 \end{theorem}
 
-\subsection{Solving Interpolation Problems}
+\section{Solving Interpolation Problems}
+
+\subsection{Monomial Basis}
 
 Given a set of points \[
     S = \{ (t_i, y_i) \}_{i=1}^m
@@ -225,6 +227,8 @@ Originally, we are trying to find \( P_{m-1}(t) \in \P_{m-1} \), write \[
 \] using monomial basis \[
     \{ 1, t, t^2, \ldots, t^{m-1} \}
 \]
+
+\subsection{Lagrange Basis}
 
 \subsubsection{Using a Different Basis}
 Suppose \( \{ b_i(t) \}_{i=1}^{m} \) is a basis for \( \P_{m-1} \), then \[
@@ -310,16 +314,165 @@ This basis is know as the \term{Lagrange basis}.
 
 \begin{definition}[Lagrange Basis]\index{Lagrange Basis}
     The \textbf{Lagrange basis} is a set of functions \[
-        \{ l_k(t) \}_{k=1}^{m} \qquad \text{where} \qquad l_k(t) = \frac{\displaystyle\prod_{j=1, j \neq k}^{m} (t - t_j)}{\displaystyle\prod_{j=1, j \neq k}^{m} (t_k - t_j)}
+        \{ l_k(t) \}_{k=1}^{m} \qquad \text{where} \qquad l_k(t) =
+        \prod_{j=1, j \neq k}^{m} \frac{t - t_j}{t_k - t_j}
     \]
 \end{definition}
 
+\begin{remark}
+    The Lagrange basis has the property \[
+        l_k(t_j) = \begin{cases}
+            1 & \text{if } k = j    \\
+            0 & \text{if } k \neq j
+        \end{cases}
+    \]
+\end{remark}
+
 The Lagrange form of the interpolating polynomial is \[
-    P_{m-1}(t) = \sum_{k=1}^{m} y_k l_k(t)
+    P_{m-1}(t) = \sum_{k=1}^{m} c_k l_k(t) \qquad\text{ where } \vec{c} = \vec{y}
 \]
 
 \begin{example}
     We use the Lagrange basis to compute \( P_2(t) \) that interpolates \[
         \{ (-1, 2), (1, 1), (2, 1) \}
     \]
+
+    We have the expressions for the Lagrange basis
+
+    \begin{minipage}[t]{0.3\linewidth}
+        \begin{align*}
+            l_1(t)
+             & = \prod_{k=2,3} \frac{t - t_k}{t_1 - t_k}
+            \\
+             & = \frac{t - 1}{-1 - 1} \cdot \frac{t - 2}{-1 - 2}
+            \\
+             & = \frac{1}{6} (t - 1)(t - 2)
+        \end{align*}
+    \end{minipage}
+    \begin{minipage}[t]{0.3\linewidth}
+        \begin{align*}
+            l_2(t)
+             & = \prod_{k=1,3} \frac{t - t_k}{t_2 - t_k}
+            \\
+             & = \frac{t + 1}{1 + 1} \cdot \frac{t - 2}{1 - 2}
+            \\
+             & = -\frac{1}{2} (t + 1)(t - 2)
+        \end{align*}
+    \end{minipage}
+    \begin{minipage}[t]{0.3\linewidth}
+        \begin{align*}
+            l_3(t)
+             & = \prod_{k=1,2} \frac{t - t_k}{t_3 - t_k}
+            \\
+             & = \frac{t + 1}{2 + 1} \cdot \frac{t - 1}{2 - 1}
+            \\
+             & = \frac{1}{3} (t + 1)(t - 1)
+        \end{align*}
+    \end{minipage}
+
+    so \begin{align*}
+        P_2(t)
+         & = 2l_1(t) + 1l_2(t) + 1l_3(t)
+        \\
+         & = 2 \cdot \frac{1}{6} (t - 1)(t - 2) - \frac{1}{2} (t + 1)(t - 2) + \frac{1}{3} (t + 1)(t - 1)
+        \\
+         & = \frac{4}{3} - \frac{1}{2}t + \frac{1}{6}t^2
+    \end{align*}
+    which is the same as the polynomial we found earlier.
 \end{example}
+
+\begin{remark}[Lagrange Basis are Expensive]
+    For each \( l_i(t) \), we require approximately \( 4m \) FLOPs.
+    \begin{itemize}
+        \item For the numerator, \( m - 1 \) multiplications and \( m - 1 \) subtractions
+        \item For the denominator, \( m - 1 \) multiplications and \( m - 1 \) subtractions
+        \item A finial division
+    \end{itemize} so we require a total of \[
+        \Theta(m^2) \text{ FLOPs}
+    \] in total to compute the Lagrange basis.
+\end{remark}
+
+\subsection{Newton Basis}
+
+Recall for a general basis \( \{ b_i(t) \}_{i=1}^{m} \), we have \[
+    P_{m-1}(t) = \sum_{i=1}^{m} \alpha_i b_i(t)
+\] and the interpolating conditions \[
+    P_{m-1}(t_i) = y_i
+\] We solve the system of equations \[
+    B\vec{c} = \vec{y}
+\] for \( \vec{c} \), where \[
+    B = \begin{pmatrix}
+        b_1(t_1) & b_2(t_1) & \cdots & b_m(t_1) \\
+        b_1(t_2) & b_2(t_2) & \cdots & b_m(t_2) \\
+        \vdots   & \vdots   & \ddots & \vdots   \\
+        b_1(t_m) & b_2(t_m) & \cdots & b_m(t_m)
+    \end{pmatrix}
+\]
+
+We want a \( B \) that is easy to solve, but perhaps not as easy as the identity matrix. We explore a triangular system.
+
+\subsubsection{Lower Triangular System}
+
+We choose a basis \( \{ b_i(t) \}_{i=1}^{m} \) such that \[
+    B = \begin{pmatrix}
+        b_1(t_1)     & 0            & 0      & \cdots           & 0        \\
+        b_1(t_2)     & b_2(t_2)     & 0      & \cdots           & 0        \\
+        \vdots       & \vdots       & \ddots & \ddots           & \vdots   \\
+        b_1(t_{m-1}) & b_2(t_{m-1}) & \cdots & b_{m-1}(t_{m-1}) & 0        \\
+        b_1(t_m)     & b_2(t_m)     & \cdots & b_{m-1}(t_m)     & b_m(t_m)
+    \end{pmatrix}
+\]
+
+For simplicity, take \( b_1(t) = 1 \).
+\begin{itemize}
+    \item Row 1: \( b_2(t_1) = 0, b_3(t_1) = 0, \ldots, b_m(t_1) = 0 \)
+
+          We include \( (t - t_1) \) as a factor of each \( b_R(t) \) for \( R = 2, 3, \ldots, m \).
+
+    \item Row 2: \( b_3(t_2) = 0, b_4(t_2) = 0, \ldots, b_m(t_2) = 0 \)
+
+          We include \( (t - t_2) \) as a factor of each \( b_R(t) \) for \( R = 3, 4, \ldots, m \).
+
+    \item \( \vdots \)
+
+    \item Row \( m-1 \): \( b_m(t_{m-1}) = 0 \)
+
+          We include \( (t - t_{m-1}) \) as a factor of \( b_m(t) \).
+\end{itemize} which suggests \[
+    b_k(t) = \prod_{j=1}^{k-1} (t - t_j)
+\]
+
+\begin{remark}
+    This is a basis because we have \( m \) linearly independent functions.
+\end{remark}
+
+\begin{definition}[Newton Basis]\index{Newton Basis}
+    The \term{Newton basis} is a set of functions \[
+        \{ n_k(t) \}_{k=1}^{m} \qquad \text{where} \qquad n_k(t) = \prod_{j=1}^{k-1} (t - t_j)
+    \]
+\end{definition}
+
+The Newton form of the interpolating polynomial is \[
+    P_{m-1}(t) = \sum_{k=1}^{m} c_k \prod_{j=1}^{k-1} (t - t_j)
+\]
+
+\begin{remark}[Newton Basis are Cheaper]
+    If we can remember the results \( t - t_i \), then each new term added would only require \( 3 \) FLOPs. This is a significant improvement over the Lagrange basis. The total operation count is \(
+        \Theta(3m) \text{ FLOPs}
+    \)
+\end{remark}
+
+Now, to determine the coefficients, we solve a lower triangular system \( B\vec{c} = \vec{y} \)
+We know that
+\begin{itemize}
+    \item \( y_1 = P_{m-1}(t_1) = c_1 \) so \[
+              c_1 = y_1
+          \]
+    \item \( y_2 = P_{m-1}(t_2) = c_1 + c_2(t_2 - t_1) \) so \[
+              c_2 = \frac{y_2 - c_1}{t_2 - t_1}
+          \]
+    \item \( \vdots \)
+    \item \( \displaystyle y_m = P_{m-1}(t_m) = \sum_{k=1}^{m} c_k \prod_{j=1}^{k-1} (t_m - t_j) \) so \[
+              c_m = \frac{\displaystyle y_m - \sum_{j=1}^{m-1} c_j \prod_{k=1}^{j-1} (t_m - t_k)}{\displaystyle \prod_{k=1}^{m-1} (t_m - t_k)}
+          \]
+\end{itemize}
