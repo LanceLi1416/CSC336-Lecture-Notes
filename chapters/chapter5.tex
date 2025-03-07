@@ -153,10 +153,173 @@
     \] there exists a unique polynomial of degree at less than \( m \) that interpolates the data.
 \end{theorem}
 
-\subsubsection{Generalization}
+\subsection{Solving Interpolation Problems}
 
 Given a set of points \[
     S = \{ (t_i, y_i) \}_{i=1}^m
 \] we find the unique polynomial \[
     P_{m-1}(t) = \sum_{i=1}^{m} c_i t^{i-1}
 \] that interpolates the data.
+
+Applying the interpolation conditions,
+\begin{itemize}
+    \item \( P_{m-1}(t_1) = y_1 \)
+    \item \( P_{m-1}(t_2) = y_2 \)
+    \item \( \vdots \)
+    \item \( P_{m-1}(t_m) = y_m \)
+\end{itemize}
+We have systems of equations
+\begin{align*}
+    c_1 + c_2 t_1 + c_3 {t_1}^2 + \cdots + c_m {t_1}^{m-1} & = y_1 \\
+    c_1 + c_2 t_2 + c_3 {t_2}^2 + \cdots + c_m {t_2}^{m-1} & = y_2 \\
+    \vdots                                                         \\
+    c_1 + c_2 t_m + c_3 {t_m}^2 + \cdots + c_m {t_m}^{m-1} & = y_m
+\end{align*}
+That is, a linear system \[
+    \begin{pmatrix}
+        1      & t_1    & t_1^2  & \cdots & {t_1}^{m-1} \\
+        1      & t_2    & t_2^2  & \cdots & {t_2}^{m-1} \\
+        \vdots & \vdots & \vdots & \ddots & \vdots      \\
+        1      & t_m    & t_m^2  & \cdots & {t_m}^{m-1}
+    \end{pmatrix} \begin{pmatrix}
+        c_1    \\
+        c_2    \\
+        \vdots \\
+        c_m
+    \end{pmatrix} = \begin{pmatrix}
+        y_1    \\
+        y_2    \\
+        \vdots \\
+        y_m
+    \end{pmatrix}
+\]
+
+The matrix \( V \) is called the \term{Vandermonde matrix}.
+
+\begin{lemma}
+    If all the \( t_i \) are distinct, then the Vandermonde matrix is invertible.
+\end{lemma}
+
+Therefore, we can determine the poly coefficients \( \vec{c} \).
+
+\begin{minted}{python}
+    import numpy as np
+
+    t = np.linspace(1.0, 2.0, 11)
+    # t = (1.0, 1.1, 1.2, ..., 2.0)
+
+    V = np.vander(t, increasing=True)
+    # V = [[1.0, 1.0, 1.0, ..., 1.0],
+    #      [1.0, 1.1, 1.21, ..., 2.0],
+    #      ...
+    #      [1.0, 2.0, 4.0, ..., 1024.0]]
+
+    np.linalg.cond(V)
+    # 6518493762298.583 ~ 6.52 * 10^12
+\end{minted}
+
+Using IEEE double precision, solving \( V \vec{c} = \vec{y} \) get \( \vec{c}'s \) to approximately 4 significant digits of accuracy. It is difficult to determine interpolants accurately this way.
+
+Originally, we are trying to find \( P_{m-1}(t) \in \P_{m-1} \), write \[
+    P_{m-1}(t) = \sum_{i=1}^{m} c_i t^{i-1}
+\] using monomial basis \[
+    \{ 1, t, t^2, \ldots, t^{m-1} \}
+\]
+
+\subsubsection{Using a Different Basis}
+Suppose \( \{ b_i(t) \}_{i=1}^{m} \) is a basis for \( \P_{m-1} \), then \[
+    P_{m-1}(t) = \sum_{i=1}^{m} \alpha_i b_i(t)
+\] for some \( \alpha_i \in \R \) to be determined.
+
+We know that \[
+    P_{m-1}(t_i) = y_i
+\] and using the new basis, we have
+\begin{align*}
+    \alpha_1 b_1(t_1) + \alpha_2 b_2(t_1) + \cdots + \alpha_m b_m(t_1)
+     & = y_1  \\
+    \alpha_1 b_1(t_2) + \alpha_2 b_2(t_2) + \cdots + \alpha_m b_m(t_2)
+     & = y_2  \\
+     & \vdots \\
+    \alpha_1 b_1(t_m) + \alpha_2 b_2(t_m) + \cdots + \alpha_m b_m(t_m)
+     & = y_m
+\end{align*} which yields the system of equations \[
+    \begin{pmatrix}
+        b_1(t_1) & b_2(t_1) & \cdots & b_m(t_1) \\
+        b_1(t_2) & b_2(t_2) & \cdots & b_m(t_2) \\
+        \vdots   & \vdots   & \ddots & \vdots   \\
+        b_1(t_m) & b_2(t_m) & \cdots & b_m(t_m)
+    \end{pmatrix} \begin{pmatrix}
+        \alpha_1 \\
+        \alpha_2 \\
+        \vdots   \\
+        \alpha_m
+    \end{pmatrix} = \begin{pmatrix}
+        y_1    \\
+        y_2    \\
+        \vdots \\
+        y_m
+    \end{pmatrix}
+\]
+
+\begin{remark}
+    The choice of basis is important. We want to choose a basis that is easy to work with.
+\end{remark}
+
+What if \( B = I \)? Then we \( \kappa_I = 1 \) and \( \vec{\alpha} = \vec{y} \).
+
+We choose a basis such that \[
+    b_i(t_j) = \begin{cases}
+        1 & \text{if } i = j    \\
+        0 & \text{if } i \neq j
+    \end{cases}
+\]
+
+\begin{example}
+    Consider \( R = 1 \), we want
+    \begin{itemize}
+        \item \( b_1 (t_2) = 0 \)
+        \item \( b_1 (t_3) = 0 \)
+        \item \( \vdots \)
+        \item \( b_1 (t_m) = 0 \)
+    \end{itemize}
+
+    So if we were to construct a polynomial satisfying these conditions, we would include the factors \[
+        (t - t_2) \qquad (t - t_3) \qquad \cdots \qquad (t - t_m)
+    \] which suggests \( b_1(t) \) takes the form \[
+        (t - t_2)(t - t_3) \cdots (t - t_m)
+    \]
+
+    Note that this is of degree \( m-1 \), and since our basis cannot have degree more than \( m-1 \), we cannot add more factors.
+
+    Now we need to satisfy \( b_1(t_1) = 1 \), so we need to divide by a constant. We can choose \[
+        b_1(t) = \frac{(t - t_2)(t - t_3) \cdots (t - t_m)}{(t_1 - t_2)(t_1 - t_3) \cdots (t_1 - t_m)}
+    \]
+\end{example}
+
+In general, \[
+    b_k(t) = \frac{\displaystyle\prod_{j=1, j \neq k}^{m} (t - t_j)}{\displaystyle\prod_{j=1, j \neq k}^{m} (t_k - t_j)}
+\]
+
+\begin{lemma}
+    The set of functions \[
+        \{ {b_k}(t) \}_{k=1}^{m}
+    \] are linearly independent and form a basis for \( \P_{m-1} \).
+\end{lemma}
+
+This basis is know as the \term{Lagrange basis}.
+
+\begin{definition}[Lagrange Basis]\index{Lagrange Basis}
+    The \textbf{Lagrange basis} is a set of functions \[
+        \{ l_k(t) \}_{k=1}^{m} \qquad \text{where} \qquad l_k(t) = \frac{\displaystyle\prod_{j=1, j \neq k}^{m} (t - t_j)}{\displaystyle\prod_{j=1, j \neq k}^{m} (t_k - t_j)}
+    \]
+\end{definition}
+
+The Lagrange form of the interpolating polynomial is \[
+    P_{m-1}(t) = \sum_{k=1}^{m} y_k l_k(t)
+\]
+
+\begin{example}
+    We use the Lagrange basis to compute \( P_2(t) \) that interpolates \[
+        \{ (-1, 2), (1, 1), (2, 1) \}
+    \]
+\end{example}
