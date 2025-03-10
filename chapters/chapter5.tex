@@ -458,7 +458,7 @@ The Newton form of the interpolating polynomial is \[
 
 \begin{remark}[Newton Basis are Cheaper]
     If we can remember the results \( t - t_i \), then each new term added would only require \( 3 \) FLOPs. This is a significant improvement over the Lagrange basis. The total operation count is \(
-        \Theta(3m) \text{ FLOPs}
+    \Theta(3m) \text{ FLOPs}
     \)
 \end{remark}
 
@@ -476,3 +476,129 @@ We know that
               c_m = \frac{\displaystyle y_m - \sum_{j=1}^{m-1} c_j \prod_{k=1}^{j-1} (t_m - t_k)}{\displaystyle \prod_{k=1}^{m-1} (t_m - t_k)}
           \]
 \end{itemize}
+
+\begin{example}
+    Determine the Newton form of the degree 2 polynomial that interpolates \[
+        \{ (-1, 2), (1, 1), (2, 1) \}
+    \]
+
+    We have the expressions for the Newton basis
+    \begin{itemize}
+        \item \( c_1 = y_1 = 2 \)
+        \item \( \begin{aligned}[t]
+                  c_2 & = \frac{y_2 - c_1}{t_2 - t_1} \\
+                      & = \frac{1 - 2}{1 - (-1)}      \\
+                      & = -\frac{1}{2}
+              \end{aligned} \)
+        \item \( \begin{aligned}[t]
+                  c_3
+                   & = \frac{y_3 - \left[ c_1 + c_2(t_3 - t_1) \right]}{(t_3 - t_1)(t_3 - t_2)}
+                  \\
+                   & = \frac{1 - \left[ 2 - \frac{1}{2}(2 - (-1)) \right]}{(2 - (-1))(2 - 1)}
+                  \\
+                   & = \frac{1}{6}
+              \end{aligned} \)
+    \end{itemize}
+
+    So the Newton form of the interpolating polynomial is \[
+        P_2(t) = 2 - \frac{1}{2}(t + 1) + \frac{1}{6}(t + 1)(t - 1) = \frac{4}{3} - \frac{1}{2}t + \frac{1}{6}t^2
+    \]
+
+    This is the same polynomial we found earlier with the monomial and Lagrange basis.
+\end{example}
+
+\subsection{Summary}
+
+% \begin{table}[H]
+%     \centering
+%     \begin{tabular}{r|c|c|c|c}
+%          & \small Evaluate \( P_{m-1}(t) \)
+%          & \small Integrate/Differentiate
+%          & \small Finding Coefficients
+%          & \small Add \( (t_{m+1}, g_{m_1}) \)
+%         \\ \hline
+%         \small Monomial Basis
+%          & \small Easy
+%          & \small Easy
+%          & \small Can be Ill-conditioned
+%          & \small All Coefficients Change
+%         \\
+%         \small Lagrange Basis
+%          & \small Difficult
+%          & \small Difficult
+%          & \small Very Easy
+%          & \small Just add \( \frac{t - t_{m+1}}{t - t_m} \) to each \( l_k(t) \)
+%         \\
+%         \small Newton Basis
+%          & \small Easy
+%          & \small Medium
+%          & \small Easy
+%          & \small Add \( c_m \cdot ( t - t_1) \cdot \ldots \cdot (t - t_{m-1}) \) to previous interpolants
+%     \end{tabular}
+% \end{table}
+
+\begin{table}[H]
+    \centering
+    \begin{tabular}{r|p{3.5cm}|p{3.5cm}|p{4cm}}
+         & \small \bold{Monomial Basis}
+         & \small \bold{Lagrange Basis}
+         & \small \bold{Newton Basis}
+        \\ \hline
+        \small Evaluate \( P_{m-1}(t) \)
+         & \small Easy
+         & \small Difficult
+         & \small Easy
+        \\ \hline
+        \small Integrate/Differentiate
+         & \small Easy
+         & \small Difficult
+         & \small Medium
+        \\ \hline
+        \small Finding Coefficients
+         & \small Can be Ill-conditioned
+         & \small Very Easy
+         & \small Easy
+        \\ \hline
+        \small Add \( (t_{m+1}, g_{m+1}) \)
+         & \small All Coefficients Change
+         & \small Just add \( \frac{t - t_{m+1}}{t - t_m} \) to each \( l_k(t) \)
+         & \small Add \( \displaystyle c_m \prod_{j=1}^{m-1} (t - t_j) \) to previous interpolants
+    \end{tabular}
+\end{table}
+
+What about accuracy? We know \[
+    P_{m-1}(t_i) = y_i \quad \text{for all } i = 1, 2, \ldots, m
+\] but how can we determine if \( P_{m-1}(t) \) is a good approximation for \( f(t) \) for \( t \neq t_i \)?
+
+\begin{theorem}
+    Suppose the polynomial \( P_{m-1}(t) \) interpolates the function \( f(t) \) at distinct points \( t_1 < t_2 < \cdots < t_m \). If \( f \) is \(m\)-times differentiable on the interval \([t_1, t_m]\), then for any point \( t \in [t_1, t_m] \), \[
+        f(t) - p_{m-1}(t) = \frac{1}{m!} f^{(m)}(c_t) \omega_m(t)
+    \] where
+    \begin{itemize}
+        \item \( c_t \) is some point in \( t_1, t_, \) that depends on \( t \);
+        \item \( \displaystyle \omega_m(t) = (t - t_1) (t - t_2) \cdots (t - t_m) = \prod_{j=1}^{m} (t - t_j) \)
+    \end{itemize}
+\end{theorem}
+
+We have \[
+    \max_{t \in [t_1, t_m]} | f(t) - P_{m-1}(t) | \leq \frac{1}{m!} \max_{t \in [t_1, t_m]} | f^{(m)}(t) | \max_{t \in [t_1, t_m]} | \omega_m(t) |
+\]
+\begin{itemize}
+    \item \( m \) is the interpolation points we can control
+    \item \( f^{(m)}(t) \) is the \( m \)-th derivative of \( f(t) \) which is the function we are trying to approximate
+    \item depends on placement of \( t_i \) in the interval \([t_1, t_m]\)
+    \item We can show that \[
+              \max_{t \in [t_1, t_m]} | \omega_m(t) | \leq \frac{h^m \cdot (m - 1)!}{4}
+          \] where \[
+              h = \max_{i = 1, \dots, m-1} | t_{i+1} - t_i |
+          \]
+\end{itemize}
+
+Thus, \begin{align*}
+    \max_{t \in [t_1, t_m]} | f(t) - P_{m-1}(t) |
+     & \leq \frac{1}{m!} \max_{t \in [t_1, t_m]} | f^{(m)}(t) | \frac{h^m \cdot (m - 1)!}{4}
+    \\
+     & \leq \frac{M \cdot h^m}{4m}
+\end{align*} where \[
+    M = \max_{t \in [t_1, t_m]} | f^{(m)}(t) |
+\]
