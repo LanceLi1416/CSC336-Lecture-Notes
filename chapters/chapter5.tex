@@ -654,6 +654,8 @@ We know that \[
 
 What should we do if we need to interpolate a large dataset?
 
+\subsection{Picecwise-Linear Interpolation}
+
 The idea is to split the data into smaller chunks and interpolate each chunk separately. We construct \term{piecewise polynomial interpolants} \[
     \{ P_{d,i}(t) \}
 \] where
@@ -704,7 +706,7 @@ The idea is to split the data into smaller chunks and interpolate each chunk sep
     \]
 \end{remark}
 
-\subsection{Accuracy}
+\subsubsection{Accuracy}
 
 Suppose \( L(t) \) interpolates \( f(x) \) at knots \( \{ t_i \}_{i=1}^{m} \).
 We have \[
@@ -729,3 +731,88 @@ We check the boundaries and the critical points \[
 \( \omega_2 \) is part of a quadratic so the maximum of absolute values happens at the centre \[
     \frac{t_{i} + t_{i+1}}{2}
 \]
+
+% TODO: Some stuff there
+
+For \( t \in [t_1, t_m] \), \[
+    | L(t) - f(t) | \leq \frac{1}{2!} \cdot \frac{h^2}{4} \cdot \max_{t \in [t_1, t_m]} | f''(t) | = \frac{h^2}{8} \cdot \max_{t \in [t_1, t_m]} | f''(t) |
+\] where \( h = \max_{i} h_i \)
+
+For uniformly spaced \( t_i \), increasing the number of interpolation points would reults in smaller \( h \), leading to a lower error.
+
+\subsection{Piecewise-Cubit Interpolation}
+% TODO: Plots
+
+We observe that partial-linear interpolations struggles when there is curvatures.
+
+Instead, we consider a piece-wise cubit interpolation.
+
+For each \( [t_i, t_{i+1}] \), we fit a cubit \( P_{3,i}(t) \) where \( t \in [t_i, t_{i+1}] \).
+
+On each sub-interval, we need to determine \[
+    P_{3,i} = \alpha_i + \beta_i(t - t_i) + \gamma_i(t - t_i)^2 + \delta_i(t - t_i)^3
+\]
+
+For \( t = t_i \), we have \[
+    P_{3,i}(t_i) = \alpha_i = f(t_i)
+\] and for \( t = t_{i+1} \), we have \[
+    P_{3,i}(t_{i+1}) = \alpha_i + \beta_i h_i^1 + \gamma_i h_i^2 + \delta_i h_i^3
+\] where \( h_i = t_{i+1} - t_i \).
+
+\begin{remark}
+    The algorithm requires the derivatives \[
+        P_{3,i}'(t) = \beta_i + 2\gamma_i(t - t_i) + 3\delta_i(t - t_i)^2
+    \]
+
+    We have \[
+        P_{3,i}'(t_i) = \beta_i = f'(t_i)
+        \qquad
+        P_{3,i}'(t_{i+1}) = \beta_i + 2\gamma_i h_i + 3\delta_i h_i^2 = f'(t_{i+1})
+    \]
+\end{remark}
+
+We need to solve \[
+    \begin{bmatrix}
+        1 & 0   & 0     & 0      \\
+        0 & 1   & 0     & 0      \\
+        1 & h_i & h_i^2 & h_i^3  \\
+        0 & 1   & 2h_i  & 3h_i^2
+    \end{bmatrix} \begin{bmatrix}
+        \alpha_i \\ \beta_i \\ \gamma_i \\ \delta_i
+    \end{bmatrix} = \begin{bmatrix}
+        f(t_i) \\ f'(t_i) \\ f(t_{i+1}) \\ f'(t_{i+1})
+    \end{bmatrix}
+\] for each interval \( [t_i, t_{i+1}] \). We get a \term{piecewise cubit Hermite interpolant} (PCHIP)\index{Piecewise Cubit Hermite Interpolant (PCHIP)}.
+
+\begin{remark}[Caveat]
+    The PCHIP requires the derivatives of the function. This means that we need to know the function \( f(t) \) in advance.
+\end{remark}
+
+What happens if we are only given a set of points, and not the function itself? We construct a \term{cubit spline interpolation}.
+
+\begin{example}
+    Suppose \( m = 4 \), and we are given \[
+        (t_1, y_1), (t_2, y_2), (t_3, y_3), (t_4, y_4)
+    \]
+
+    Define \( S(t) = \{ S_i(t) \text{ if } t \in [t_1, t_{i+1}] \} \)
+
+    Hence we are to determine \[
+        S_1(t), S_2(t), S_3(t)
+    \]
+
+    Let \( s_i(t) = a_i + b_i(t - t_i) + c_i(t - t_i)^2 + d_i(t - t_i)^3 \) for \( t \in [t_i, t_{i+1}] \).
+\end{example}
+
+% \begin{definition}[Cubic Spline Interpolation]\index{Cubic Spline Interpolation}
+%     Given a set of points \( \{ (t_i, y_i) \}_{i=1}^{m} \), a \term{cubic spline interpolant} is a piecewise cubit polynomial \[
+%         S(t) = \begin{cases}
+%             P_{3,i}(t)       & \text{if } t \in [t_i, t_{i+1}] \\
+%             \text{undefined} & \text{otherwise}
+%         \end{cases}
+%     \] where \( P_{3,i}(t) \) is a cubit polynomial that interpolates \( f(t) \) at \( t_i \) and \( t_{i+1} \) and satisfies \[
+%         P_{3,i}(t_i) = y_i
+%         \qquad
+%         P_{3,i}(t_{i+1}) = y_{i+1}
+%     \]
+% \end{definition}
