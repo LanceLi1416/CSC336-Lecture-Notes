@@ -802,17 +802,87 @@ What happens if we are only given a set of points, and not the function itself? 
     \]
 
     Let \( s_i(t) = a_i + b_i(t - t_i) + c_i(t - t_i)^2 + d_i(t - t_i)^3 \) for \( t \in [t_i, t_{i+1}] \).
+
+    There are 4 unknown coefficients per interval -- in general, \( 4(m - 1) \) unknown coefficients to determine.
+
+    \begin{itemize}
+        \item What do we know?
+              We want \( S(t) \) to interpolate data.
+
+              The left end points
+              \begin{itemize}
+                  \item \( S_1(t_1) = y_1 \)
+                  \item \( S_2(t_2) = y_2 \).
+                  \item \( S_3(t_3) = y_3 \).
+                  \item \( \vdots \)
+                  \item \( S_{m-1}(t_{m-1}) = y_{m-1} \).
+              \end{itemize}
+              The right end points
+              \begin{itemize}
+                  \item \( S_1(t_2) = y_2 \)
+                  \item \( S_2(t_3) = y_3 \).
+                  \item \( S_3(t_4) = y_4 \).
+                  \item \( \vdots \)
+                  \item \( S_{m-1}(t_m) = y_m \).
+              \end{itemize}
+
+        \item We want \( S(t) \) to be smooth.
+
+              \begin{itemize}
+                  \item \( S_i(t) \) is differentiable since it is a cubic polynomial.
+                  \item The issues happen at the knots \( t_i \).
+              \end{itemize}
+
+              We require \[
+                  s_i'(t + 1) = s_{i+1}'(t_{i+1}) \qquad \text{for } i = 1, 2, \ldots, m-2
+              \] and this proposes \( m - 2 \) more constraints on the coefficients.
+    \end{itemize}
+
+    In total, we have \( 4(m - 1) \) unknowns and \[
+        2(m-1) + (m-2) + (m-2) = 4m - 6
+    \] constraints.
+
+    The second \( m-2 \) comes from the constraints at the second derivatives. We require \[
+        S_1''(y_2) = S_2''(t_2) \qquad S_2''(t_3) = S_3''(t_3) \qquad \dots \qquad s_{m-2}''(t_{m-1}) = s_{m-1}''(t_{m-1})
+    \]
 \end{example}
 
-% \begin{definition}[Cubic Spline Interpolation]\index{Cubic Spline Interpolation}
-%     Given a set of points \( \{ (t_i, y_i) \}_{i=1}^{m} \), a \term{cubic spline interpolant} is a piecewise cubit polynomial \[
-%         S(t) = \begin{cases}
-%             P_{3,i}(t)       & \text{if } t \in [t_i, t_{i+1}] \\
-%             \text{undefined} & \text{otherwise}
-%         \end{cases}
-%     \] where \( P_{3,i}(t) \) is a cubit polynomial that interpolates \( f(t) \) at \( t_i \) and \( t_{i+1} \) and satisfies \[
-%         P_{3,i}(t_i) = y_i
-%         \qquad
-%         P_{3,i}(t_{i+1}) = y_{i+1}
-%     \]
-% \end{definition}
+\begin{remark}
+    In SciPy, we could use the \texttt{scipy.interpolate.CubicSpline} function.
+\end{remark}
+
+We realize that we are two constraints short. We could further impose constrains on the derivatives at the ends.
+
+\begin{itemize}
+    \item \( S_1''(t_1) = 0 \), \( S_{m-1}''(t_m) = 0 \) are called \term{natural spline} boundary conditions.
+    \item If \( y' \) are known at the ends, we have \( s_1'(t_1) = y_1' \) and \( s_{m-1}'(t_m) = y_m' \) which are called \term{clamped spline} boundary conditions.
+    \item We force \( S_1'''(t_2) = S_2'''(t_2) \) and \( S_{m-2}'''(t_{m-1}) = S_{m-1}'''(t_{m-1}) \) which are called \term{not-a-knot spline} boundary conditions.
+\end{itemize}
+
+\subsection{Accuracies of the Cubic Slimes}
+
+\begin{theorem}
+    Let \( f \in C^4[a, b] \).
+
+    If \( S(t) \) is a natural or clamped or not-a-knot cubic spline that interpolates \( f(t) \) at \( a = t_1 < t_2 < \cdots < t_m = b \), then \[
+        \max_{t \in [a, b]} | S(t) - f(t) | \leq C_{\text{method}} \cdot h^4 \cdot \max_{t \in [a, b]} | f^{(4)}(t) |
+    \] where
+    \begin{itemize}
+        \item \( C_{\text{method}} \) is a small constant dependent on the type of spline
+              \begin{itemize}
+                  \item \( C_{\text{clamped}} = \frac{5}{384} \)
+                  \item \( C_{\text{not-a-knot}} = \frac{5}{384} \)
+              \end{itemize}
+        \item \( h = \max_{i} h_i = \max_{i} t_{i+1}-t_i \) is the maximum distance between knots
+    \end{itemize}
+\end{theorem}
+
+Suppose uniformally spaced knots, \[
+    h = \frac{b - a}{m - 1}
+\] If we double the amount of interpolation points, \( h \to h/2 \), and the error goes down by a factor of \( 2^4 = 16 \).
+
+\begin{remark}
+    For derivative approximations, \[
+        \max_{t \in [a,b]} | f^{(p)}(t) - S^{(p)}(t) | \leq C_{\text{method}} \cdot h^{4-p} \cdot \max_{t \in [a, b]} | f^{(4)}(t) |
+    \] for \( p = 0, 1, 2 \).
+\end{remark}
