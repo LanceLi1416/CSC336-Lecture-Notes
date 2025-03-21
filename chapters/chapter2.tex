@@ -94,7 +94,7 @@ A lesson learned from the previous example is that the math textbook algorithms 
          & = \frac{1}{n-1} - 5y_n                               \\
         5y_n
          & = \frac{1}{n+1} - y_{n+1}                            \\
-        y_{n+1}
+        y_n
          & = \frac{1}{5} \left( \frac{1}{n+1} - y_{n+1} \right) \\
     \end{align*}
 
@@ -645,15 +645,15 @@ If there is cancellation, we must have \( b^2 \approx 4ac \), which means their 
     \end{align*} and since \( x > 0 \), there is no catastrophic cancellation. A trade off, however, is that this approach is slower than the na\"ive approach as we have 1 more operation.
 
     \begin{algorithm}[H]
-    \begin{algorithmic}
-        \Function{f}{$x$}
-        \If{\( x \geq 3 \)}
-        \State \( f = \texttt{math.sqrt(1+x) - 1} \)
-        \Else
-        \State \( f = \texttt{x / (math.sqrt(1+x) + 1)} \)
-        \EndIf
-        \EndFunction
-    \end{algorithmic}
+        \begin{algorithmic}
+            \Function{f}{$x$}
+            \If{\( x \geq 3 \)}
+            \State \( f = \texttt{math.sqrt(1+x) - 1} \)
+            \Else
+            \State \( f = \texttt{x / (math.sqrt(1+x) + 1)} \)
+            \EndIf
+            \EndFunction
+        \end{algorithmic}
     \end{algorithm}
 \end{example}
 
@@ -684,7 +684,7 @@ If there is cancellation, we must have \( b^2 \approx 4ac \), which means their 
 
     We got the exact roots of a very different problem, \( 16 \to 31.99 \) with a relative increment \( \approx 1 \).
 
-    {~~~}
+        {~~~}
 
     The later modifier algorithm gave us \[
         r_1 = 3.199 \times 10^2 \quad r_2 = 5.002 \times 10^{-2}
@@ -696,7 +696,7 @@ If there is cancellation, we must have \( b^2 \approx 4ac \), which means their 
         x^2 - 319.95002x + 16.001398 = 0
     \]
 
-    The difference 
+    The difference
     \begin{itemize}
         \item \( \Delta a = 0 \)
         \item \( \Delta b = 0.04998 \) with relative change \( \doteq 1.56 \times 16^4 < \varepsilon_{\text{machine}} \)
