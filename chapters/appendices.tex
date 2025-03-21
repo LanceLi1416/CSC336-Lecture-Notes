@@ -1,0 +1,9 @@
+\chapter*{Appendix A. Calculating Cubic Splines}
+
+\begin{remark}[Problem]
+    Given a set of \( m \) data points \( \{ (t_i, y_i) \}_{i=1}^{m} \) or \( \{ (t_i, f(t_i)) \}_{i=1}^{m} \), determine a smooth apline function \( S(t) \) that interpolates the data, and where \( S(t) = S_i(t) \) when \( t \in [t_i, t_{i+1}] \).
+\end{remark}
+
+\section*{Calculating Cubic Splines}
+
+Define \( S_i(t) = a_i + b_i(t - t_i) + c_i(t - t_i)^2 + d_i(t - t_i)^3 \) for \( i = 1, 2, \dots, m \).
