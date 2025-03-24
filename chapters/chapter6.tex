@@ -1,0 +1,166 @@
+\chapter{Computing Solutions to Non-linear Equations}
+
+So far, we are computing solutions using direct methods -- we follow an algorithm, and after a fixed number of steps, we obtain a solution. However, to solve for non-linear equations, we need to apply an indirect, iterative method.
+
+\section{Roots of a Function}
+
+Determine the roots of a general equation of the form \( f(x) = 0 \). That is, find \( x^\ast \) such that \( f(x^\ast) = 0 \).
+
+\begin{note}
+    We stick with \( f: \R \to \R \).
+\end{note}
+
+How to know when a root must exist? We use the Intermediate Value Theorem (IVT).
+
+\begin{theorem}[Intermediate Value Theorem]
+    For a continuous function \( f \in C[a, b] \), if \( v \) is any number between \( f(a) \) and \( f(b) \), then there exists a number \( c \in [a, b] \) such that \( f(c) = v \).
+\end{theorem}
+
+\begin{remark}
+    \( c \) has to exist, but does \textbf{not} have to be unique.
+\end{remark}
+
+We could apply IVT to obtain the following algorithm:
+\begin{itemize}
+    \item \( x = L \), \( x = R \), \( L < R \)
+    \item \( f(L) \) and \( f(R) \) have opposite signs, i.e. \( f(L) \cdot f(R) < 0 \)
+    \item By IVT, there has to be a root \( x^\ast \) in the interval \( [L, R] \) with \( f(x^\ast) = 0 \)
+\end{itemize}
+
+\begin{example}
+    Consider \[
+        f(x) = \cos(x) - x \qquad x \in [0, \pi/2]
+    \]
+
+    \begin{figure}[H]
+        \centering
+        \begin{tikzpicture}
+            \draw[->] (-1, 0) -- (2, 0) node[right] {\( x \)};
+            \draw[->] (0, -2) -- (0, 1.2) node[above] {\( f(x) \)};
+
+            \draw[domain=0:pi/2, smooth, variable=\x, blue] plot (\x, {cos(\x r) - \x});
+
+            \draw[red] (pi/8, 0) -- (pi/8, {cos(pi/8 r) - pi/8}) node[black,above] {\( \frac{\pi}{8} \)};
+            \draw[red] (pi/4, {cos(pi/4 r) - pi/4}) -- (pi/4, 0) node[black,below] {\( \frac{\pi}{4} \)};
+        \end{tikzpicture}
+    \end{figure}
+
+    We have
+    \begin{itemize}
+        \item \( f(0) = 1 \), \( f(\pi/2) = -\pi/2 \)
+        \item \( f(x) \) is continuous
+    \end{itemize}
+
+    By IVT, there exists a root \( x^\ast \) in the interval \( [0, \pi/2] \) such that \( f(x^\ast) = 0 \).
+
+        {~~~}
+
+    \begin{enumerate}
+        \item Consider the midpoint of \( [0, \pi/2] \), \[
+                  m_1 = L + \frac{1}{2}(R - L) = \frac{\pi}{4}
+              \] and we approximate \( x^\ast \) by \( m_1 = \frac{\pi}{4} \). Our error is bounded by \[
+                  e_1 = | m_1 - x^\ast | \leq \frac{1}{2} | R - L | = \frac{\pi}{4} \doteq 0.785
+              \]
+              If we evaluate \( f(\pi / 4) \), we get \[
+                  f(\pi / 4) = \cos(\pi / 4) - \frac{\pi}{4} = \frac{\sqrt{2}}{2} - \frac{\pi}{4} \doteq 0.07829
+              \] which is not close to 0. We need to refine our estimate.
+
+        \item We observe that if we shrink the interval, we can get a better estimate.
+
+              By IVT, there must be a root between \( [0, \pi/4] \). We have \[
+                  m_2 = \frac{\pi}{8}
+              \] and the error is bounded by \[
+                  e_2 = | m_2 - x^\ast | \leq \frac{1}{2} | R - L | = \frac{\pi}{8} \doteq 0.393
+              \]
+              Evaluating \( f(\pi / 8) \), we get \[
+                  f(\pi / 8) = \cos(\pi / 8) - \frac{\pi}{8} \doteq 0.5312
+              \] and by IVT, there must be a root between \( [\pi/8, \pi/4] \).
+    \end{enumerate}
+
+    \begin{table}[H]
+        \centering
+        \begin{tabular}{c|c|c|c|c|c|c}
+            Iteration & \( L_i \)    & \( R_i \)    & \( m_i \)
+                      & \( f(L_i) \) & \( f(R_i) \) & \( f(m_i) \) \\ \hline
+            \(1\)     & \(0\)        & \(\pi/2\)    & \(\pi/4\)
+                      & \(+\)        & \(+\)        & \( -0.078 \) \\
+            \(2\)     & \(0\)        & \(\pi/4\)    & \(\pi/8\)
+                      & \(+\)        & \(-\)        & \( +0.531 \) \\
+            \(3\)     & \(\pi/8\)    & \(\pi/4\)    & \(3\pi/16\)
+                      & \(+\)        & \(-\)        & \( +0.242 \) \\
+            \(4\)     & \(\pi/8\)    & \(3\pi/16\)  & \(5\pi/32\)
+                      & \(+\)        & \(-\)        & \( +0.086 \) \\
+            etc.
+        \end{tabular}
+        \caption{Iteration table for the \( [L_i, R_i] \) intervals}
+    \end{table}
+    Our error in approximating \( x^\ast \) by \( m_i \) is given by \[
+        e_i \leq \frac{1}{2} | R_i - L_i |
+    \]
+    When do we terminate the algorithm?
+
+    \begin{enumerate}
+        \item we can stop when the bound on the error is sufficiently small, \[
+                  \frac{1}{2} | R_i - L_i | \leq \text{ABS\_TOL}
+              \] We take the approximation of the root as \[
+                  x^\ast = L_i + \frac{1}{2} (R_i - L_i)
+              \]
+        \item We could also stop when a maximum number of iterations is reached.
+        \item We could also defined a relative tolerance instead of an absolute tolerance, \[
+                  \frac{1}{2} | R_i - L_i | \leq \text{REL\_TOL} \cdot | x^\ast |
+              \]
+        \item We could also stop when \( f(m) \) is small enough
+
+              Note that we could be tricked, as we could have \( f(a) \), but \( | a - x^\ast | \) not necessarily small.
+    \end{enumerate}
+
+    In practice, we often combine \( 1 \) and \( 4 \).
+\end{example}
+
+\section{Bisection Method}
+
+Suppose we are given a continuous function \( f(x) \) and \( L, R \) such that \( L < R \), \[
+    f(L) \cdot f(R) < 0
+\]
+
+\begin{algorithm}
+    \begin{algorithmic}[1]
+        \While {\( \frac{1}{2} | R - L | > \text{ABS\_TOL} \)}
+        \State \( M \gets (R + L) / 2 \)
+        \If {\Call{Sign}{\(f(L)\)} == \Call{Sign}{\(f(m)\)}}
+        \State \( L \gets M \)
+        \Else
+        \State \( R \gets M \)
+        \EndIf
+        \EndWhile
+        \State \( x^\ast \gets L + (R - L) / 2 \)
+        \State \Return \( x^\ast \)
+    \end{algorithmic}
+\end{algorithm}
+
+We have errors \begin{align*}
+    e_1 & = | m_1 - x^\ast | \leq \frac{1}{2} ( R_1 - L_1 )
+    \\
+    e_2 & = | m_2 - x^\ast | \leq \frac{1}{2} ( R_2 - L_2 )
+    = \frac{1}{4} ( R_1 - L_1 )
+    \\
+        & \vdots
+    \\
+    e_n & = | m_n - x^\ast | \leq \frac{1}{2^n} ( R_1 - L_1 )
+\end{align*}
+
+\begin{itemize}
+    \item \textbf{Pros}
+          \begin{itemize}
+              \item Easy to implement
+              \item Given interval bracket of root, guaranteed to converge (not often true for other methods)
+              \item Only require knowledge of \( f(x) \), and not derivatives.
+          \end{itemize}
+
+    \item \textbf{Cons}
+          \begin{itemize}
+              \item Finding an interval bracket can be hard
+              \item Convergence is slow, and convergence behaviour is not uniform
+              \item Does not make use of much information about \( f(x) \)
+          \end{itemize}
+\end{itemize}
