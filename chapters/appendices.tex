@@ -1,4 +1,4 @@
-\chapter*{Appendix A. Calculating Cubic Splines}
+\chapter*{Calculating Cubic Splines}
 
 \begin{remark}[Problem]
     Given a set of \( m \) data points \( \{ (t_i, y_i) \}_{i=1}^{m} \) or \( \{ (t_i, f(t_i)) \}_{i=1}^{m} \), determine a smooth apline function \( S(t) \) that interpolates the data, and where \( S(t) = S_i(t) \) when \( t \in [t_i, t_{i+1}] \).
@@ -8,95 +8,63 @@
 
 Define \( S_i(t) = a_i + b_i(t - t_i) + c_i(t - t_i)^2 + d_i(t - t_i)^3 \) for \( i = 1, 2, \dots, m \).
 
-\chapter*{Appendix B. Bisection Applied to \( f(x) = x - 0.2 \sin(x) - 0.5 \)}
+\begin{note}
+    The polynomial \( S_m(t) \) is a ``fictitious'' piece that helps with the calculation of the polynomial coefficients.
+\end{note}
 
-\begin{longtable}[t]{c|c|c|c|c|c|c|c}
-    Step                  &
-    \( L \)               & \( f(L) \)             &
-    \( R \)               & \( f(R) \)             &
-    \( M \)               & \( f(M) \)             & Max Error        \\ \hline \hline
-    1                     &
-    \texttt{0.000000E+00} & \(-\)                  &
-    \texttt{1.000000E+00} & \(+\)                  &
-    \texttt{5.000000E-01} & \texttt{-9.58511E-02 } & \texttt{5.0-01 } \\
-    2                     &
-    \texttt{5.000000E-01} & \(-\)                  &
-    \texttt{1.000000E+00} & \(+\)                  &
-    \texttt{7.500000E-01} & \texttt{1.136722E-01 } & \texttt{2.5E-01} \\
-    3                     &
-    \texttt{5.000000E-01} & \(-\)                  &
-    \texttt{7.500000E-01} & \(+\)                  &
-    \texttt{6.250000E-01} & \texttt{7.980545E-03 } & \texttt{1.2E-01} \\
-    4                     &
-    \texttt{5.000000E-01} & \(-\)                  &
-    \texttt{6.250000E-01} & \(+\)                  &
-    \texttt{5.625000E-01} & \texttt{-4.416053E-02} & \texttt{6.2E-02} \\
-    5                     &
-    \texttt{5.625000E-01} & \(-\)                  &
-    \texttt{6.250000E-01} & \(+\)                  &
-    \texttt{5.937500E-01} & \texttt{-1.814463E-02} & \texttt{3.1E-02} \\
-    6                     &
-    \texttt{5.937500E-01} & \(-\)                  &
-    \texttt{6.250000E-01} & \(+\)                  &
-    \texttt{6.093750E-01} & \texttt{-5.096014E-03} & \texttt{1.6E-02} \\
-    7                     &
-    \texttt{6.093750E-01} & \(-\)                  &
-    \texttt{6.250000E-01} & \(+\)                  &
-    \texttt{6.171875E-01} & \texttt{1.438734E-03 } & \texttt{7.8E-03} \\
-    8                     &
-    \texttt{6.093750E-01} & \(-\)                  &
-    \texttt{6.171875E-01} & \(+\)                  &
-    \texttt{6.132812E-01} & \texttt{-1.829518E-03} & \texttt{3.9E-03} \\
-    9                     &
-    \texttt{6.132812E-01} & \(-\)                  &
-    \texttt{6.171875E-01} & \(+\)                  &
-    \texttt{6.152344E-01} & \texttt{-1.956125E-04} & \texttt{2.0E-03} \\
-    10                    &
-    \texttt{6.152344E-01} & \(-\)                  &
-    \texttt{6.171875E-01} & \(+\)                  &
-    \texttt{6.162109E-01} & \texttt{6.215054E-04 } & \texttt{9.8E-04} \\
-    11                    &
-    \texttt{6.152344E-01} & \(-\)                  &
-    \texttt{6.162109E-01} & \(+\)                  &
-    \texttt{6.157227E-01} & \texttt{2.129326E-04 } & \texttt{4.9E-04} \\
-    12                    &
-    \texttt{6.152344E-01} & \(-\)                  &
-    \texttt{6.157227E-01} & \(+\)                  &
-    \texttt{6.154785E-01} & \texttt{8.656611E-06 } & \texttt{2.4E-04} \\
-    13                    &
-    \texttt{6.152344E-01} & \(-\)                  &
-    \texttt{6.154785E-01} & \(+\)                  &
-    \texttt{6.153564E-01} & \texttt{-9.347883E-05} & \texttt{1.2E-04} \\
-    14                    &
-    \texttt{6.153564E-01} & \(-\)                  &
-    \texttt{6.154785E-01} & \(+\)                  &
-    \texttt{6.154175E-01} & \texttt{-4.241132E-05} & \texttt{6.1E-05} \\
-    15                    &
-    \texttt{6.154175E-01} & \(-\)                  &
-    \texttt{6.154785E-01} & \(+\)                  &
-    \texttt{6.154480E-01} & \texttt{-1.687741E-05} & \texttt{3.1E-05} \\
-    16                    &
-    \texttt{6.154480E-01} & \(-\)                  &
-    \texttt{6.154785E-01} & \(+\)                  &
-    \texttt{6.154633E-01} & \texttt{-4.110413E-06} & \texttt{1.5E-05} \\
-    17                    &
-    \texttt{6.154633E-01} & \(-\)                  &
-    \texttt{6.154785E-01} & \(+\)                  &
-    \texttt{6.154709E-01} & \texttt{2.273095E-06 } & \texttt{7.6E-06} \\
-    18                    &
-    \texttt{6.154633E-01} & \(-\)                  &
-    \texttt{6.154709E-01} & \(+\)                  &
-    \texttt{6.154671E-01} & \texttt{-9.186596E-07} & \texttt{3.8E-06} \\
-    19                    &
-    \texttt{6.154671E-01} & \(-\)                  &
-    \texttt{6.154709E-01} & \(+\)                  &
-    \texttt{6.154690E-01} & \texttt{6.772177E-07 } & \texttt{1.9E-06} \\
-    20                    &
-    \texttt{6.154671E-01} & \(-\)                  &
-    \texttt{6.154690E-01} & \(+\)                  &
-    \texttt{6.154680E-01} & \texttt{-1.207210E-07} & \texttt{9.5E-07} \\
-    21                    &
-    \texttt{6.154680E-01} & \(-\)                  &
-    \texttt{6.154690E-01} & \(+\)                  &
-    \texttt{6.154685E-01} & \texttt{2.782483E-07 } & \texttt{4.8E-07}
-\end{longtable}
+\subsection*{Step 1 -- determine the step size \( \{ h_i \}_{i=1}^{m} \)}
+
+Calculate \( h_i = t_{i + 1} - t_i \) for \( i = 1, 2, \dots, m - 1 \).
+
+\subsection*{Step 2 -- Determine the coefficients \( \{ c_i \}_{i=1}^{m} \)}
+
+We will have to set up and solve a dimension \( m \times m \) linear system \( \mathbf{M}\vec{C} = \vec{r} \). The system will depend on whether we are finding a \textbf{natural} spline, a \textbf{clamped} spline, or a \textbf{not-a-knot} spline. We only consider the first two cases here.
+
+\subsubsection{Natural Splines}
+
+In this case, the linear system has the form
+% \[
+%     \begin{bmatrix}
+%         \mathbf{1} &              &              &                      &            \\
+%         h_1        & 2(h_1 + h_2) & h_2          &                      &            \\
+%                    & h_2          & 2(h_2 + h_3) & h_3                  &            \\
+%                    &              & \ddots       & \ddots               & \ddots     \\
+%                    &              & h_{m-2}      & 2(h_{m-2} + h_{m-1}) & h_{m-1}    \\
+%                    &              &              &                      & \mathbf{1}
+%     \end{bmatrix} \begin{bmatrix}
+%         c_1 \\ c_2 \\ c_3 \\ \vdots \\ c_{m-1} \\ c_m
+%     \end{bmatrix} =
+%     \begin{bmatrix}
+%         \mathbf{0}                                                                \\
+%         \dfrac{3}{h_2}(y_3 - y_2) - \dfrac{3}{h_1}(y_2 - y_1)                     \\
+%         % \dfrac{3}{h_3}(y_4 - y_3) - \dfrac{3}{h_2}(y_3 - y_2)                     \\
+%         \vdots                                                                    \\
+%         \dfrac{3}{h_{m-1}}(y_m - y_{m-1}) - \dfrac{3}{h_{m-2}}(y_{m-1} - y_{m-2}) \\
+%         \mathbf{0}
+%     \end{bmatrix}
+% \]
+
+\textbf{Solve} this linear system for \( \{ c_i \}_{i=1}^{m} \) using Gaussian Elimination.
+
+\begin{note}
+    This can be reduced to a dimension \( (m - 2) \times (m - 2) \) system because the first and last equations tell us that \( c_1 = 0 \) and \( c_m = 0 \).
+\end{note}
+
+\subsubsection{Clamped Splines}
+
+The first and last equations from the natural spline cause change to account for the different boundary conditions.
+% TODO: Matrices
+
+\textbf{Solve} this linear system for \( \{ c_i \}_{i=1}^{m} \) using Gaussian Elimination.
+
+\subsection*{Step 3 -- Determine the coefficients \( \{ a_i \}_{i=1}^{m} \)}
+
+Calculate \( a_i = y_i \), \( i = 1, 2, \dots, m - 1 \).
+
+\subsection*{Step 4 -- Determine the coefficients \( \{ b_i \}_{i=1}^{m} \)}
+
+Calculate \( b_i = \dfrac{y_{i+1} - y_i}{h_i} - \dfrac{h_i}{3}(2c_i + c_{i+1}) \), \( i = 1, 2, \dots, m - 1 \).
+
+\subsection*{Step 5 -- Determine the coefficients \( \{ d_i \}_{i=1}^{m} \)}
+
+Calculate \( d_i = \dfrac{c_{i+1} - c_i}{3h_i} \), \( i = 1, 2, \dots, m - 1 \).

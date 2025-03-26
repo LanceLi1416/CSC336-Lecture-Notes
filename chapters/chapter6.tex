@@ -123,7 +123,7 @@ Suppose we are given a continuous function \( f(x) \) and \( L, R \) such that \
     f(L) \cdot f(R) < 0
 \]
 
-\begin{algorithm}
+\begin{algorithm}[H]
     \begin{algorithmic}[1]
         \While {\( \frac{1}{2} | R - L | > \text{ABS\_TOL} \)}
         \State \( M \gets (R + L) / 2 \)
@@ -184,6 +184,97 @@ We have errors \begin{align*}
          & \geq \log_2 \left( 0.2 \times 10^7 \right) \doteq 20.93
     \end{align*}
     Thus, we need at least 21 iterations.
+
+    \begin{longtable}[t]{c|c|c|c|c|c|c|c}
+        Step                  &
+        \( L \)               & \( f(L) \)             &
+        \( R \)               & \( f(R) \)             &
+        \( M \)               & \( f(M) \)             & Max Error        \\ \hline \hline
+        1                     &
+        \texttt{0.000000E+00} & \(-\)                  &
+        \texttt{1.000000E+00} & \(+\)                  &
+        \texttt{5.000000E-01} & \texttt{-9.58511E-02}  & \texttt{5.0-01 } \\
+        2                     &
+        \texttt{5.000000E-01} & \(-\)                  &
+        \texttt{1.000000E+00} & \(+\)                  &
+        \texttt{7.500000E-01} & \texttt{1.136722E-01}  & \texttt{2.5E-01} \\
+        3                     &
+        \texttt{5.000000E-01} & \(-\)                  &
+        \texttt{7.500000E-01} & \(+\)                  &
+        \texttt{6.250000E-01} & \texttt{7.980545E-03}  & \texttt{1.2E-01} \\
+        4                     &
+        \texttt{5.000000E-01} & \(-\)                  &
+        \texttt{6.250000E-01} & \(+\)                  &
+        \texttt{5.625000E-01} & \texttt{-4.416053E-02} & \texttt{6.2E-02} \\
+        5                     &
+        \texttt{5.625000E-01} & \(-\)                  &
+        \texttt{6.250000E-01} & \(+\)                  &
+        \texttt{5.937500E-01} & \texttt{-1.814463E-02} & \texttt{3.1E-02} \\
+        6                     &
+        \texttt{5.937500E-01} & \(-\)                  &
+        \texttt{6.250000E-01} & \(+\)                  &
+        \texttt{6.093750E-01} & \texttt{-5.096014E-03} & \texttt{1.6E-02} \\
+        7                     &
+        \texttt{6.093750E-01} & \(-\)                  &
+        \texttt{6.250000E-01} & \(+\)                  &
+        \texttt{6.171875E-01} & \texttt{1.438734E-03}  & \texttt{7.8E-03} \\
+        8                     &
+        \texttt{6.093750E-01} & \(-\)                  &
+        \texttt{6.171875E-01} & \(+\)                  &
+        \texttt{6.132812E-01} & \texttt{-1.829518E-03} & \texttt{3.9E-03} \\
+        9                     &
+        \texttt{6.132812E-01} & \(-\)                  &
+        \texttt{6.171875E-01} & \(+\)                  &
+        \texttt{6.152344E-01} & \texttt{-1.956125E-04} & \texttt{2.0E-03} \\
+        10                    &
+        \texttt{6.152344E-01} & \(-\)                  &
+        \texttt{6.171875E-01} & \(+\)                  &
+        \texttt{6.162109E-01} & \texttt{6.215054E-04}  & \texttt{9.8E-04} \\
+        11                    &
+        \texttt{6.152344E-01} & \(-\)                  &
+        \texttt{6.162109E-01} & \(+\)                  &
+        \texttt{6.157227E-01} & \texttt{2.129326E-04}  & \texttt{4.9E-04} \\
+        12                    &
+        \texttt{6.152344E-01} & \(-\)                  &
+        \texttt{6.157227E-01} & \(+\)                  &
+        \texttt{6.154785E-01} & \texttt{8.656611E-06}  & \texttt{2.4E-04} \\
+        13                    &
+        \texttt{6.152344E-01} & \(-\)                  &
+        \texttt{6.154785E-01} & \(+\)                  &
+        \texttt{6.153564E-01} & \texttt{-9.347883E-05} & \texttt{1.2E-04} \\
+        14                    &
+        \texttt{6.153564E-01} & \(-\)                  &
+        \texttt{6.154785E-01} & \(+\)                  &
+        \texttt{6.154175E-01} & \texttt{-4.241132E-05} & \texttt{6.1E-05} \\
+        15                    &
+        \texttt{6.154175E-01} & \(-\)                  &
+        \texttt{6.154785E-01} & \(+\)                  &
+        \texttt{6.154480E-01} & \texttt{-1.687741E-05} & \texttt{3.1E-05} \\
+        16                    &
+        \texttt{6.154480E-01} & \(-\)                  &
+        \texttt{6.154785E-01} & \(+\)                  &
+        \texttt{6.154633E-01} & \texttt{-4.110413E-06} & \texttt{1.5E-05} \\
+        17                    &
+        \texttt{6.154633E-01} & \(-\)                  &
+        \texttt{6.154785E-01} & \(+\)                  &
+        \texttt{6.154709E-01} & \texttt{2.273095E-06}  & \texttt{7.6E-06} \\
+        18                    &
+        \texttt{6.154633E-01} & \(-\)                  &
+        \texttt{6.154709E-01} & \(+\)                  &
+        \texttt{6.154671E-01} & \texttt{-9.186596E-07} & \texttt{3.8E-06} \\
+        19                    &
+        \texttt{6.154671E-01} & \(-\)                  &
+        \texttt{6.154709E-01} & \(+\)                  &
+        \texttt{6.154690E-01} & \texttt{6.772177E-07}  & \texttt{1.9E-06} \\
+        20                    &
+        \texttt{6.154671E-01} & \(-\)                  &
+        \texttt{6.154690E-01} & \(+\)                  &
+        \texttt{6.154680E-01} & \texttt{-1.207210E-07} & \texttt{9.5E-07} \\
+        21                    &
+        \texttt{6.154680E-01} & \(-\)                  &
+        \texttt{6.154690E-01} & \(+\)                  &
+        \texttt{6.154685E-01} & \texttt{2.782483E-07}  & \texttt{4.8E-07}
+    \end{longtable}
 \end{example}
 
 \section{Fixed Point Iteration}
@@ -210,21 +301,21 @@ We have errors \begin{align*}
                 ]
                 \addplot[domain=-2:2, samples=100, color=blue]{x^3 - x - 1};
                 \addplot[domain=-2:2, samples=100, color=red]{x};
+
+                \addplot[only marks, mark=*, color=red] coordinates {(-1, -1) (-0.618, -0.618) (1.618, 1.618)};
             \end{axis}
         \end{tikzpicture}
-        \caption{Graph of \( g(x) = x^3 - x - 1 \). The fixed points of \( g \) are the points on \( g \) intersecting the line \( y = x \).}
+        \caption{Graph of \( g(x) = x^3 - x - 1 \). The fixed points of \( g \) are the points on \( g \) intersecting the line \( y = x \): \( x = -1, \sfrac{1}{2}(1 \pm \sqrt5) \)}
     \end{figure}
 \end{example}
 
-How do we find the fixed point of a function? We could use either fixed point iteration or function iteration.
+We could use fixed point iteration or function iteration to find the fixed point of a function.
 
 \subsection{Fixed Point Iteration}
 
 Define the sequence \[
     x_0 \text{ given } \qquad x_{i+1} = g(x_i)
-\] for \( i = 0, 1, 2, \dots \).
-
-If it converges, then \[
+\] for \( i = 0, 1, 2, \dots \). If it converges, then \[
     \lim_{i \to \infty} x_i = x^\ast
 \]
 
@@ -239,16 +330,12 @@ If it converges, then \[
 
     Via the bisection method, we get a root at \( x^\ast \doteq 0.6514685 \) in 21 iterations.
 
-    We now use the fixed point iteration method to find the root.
+        {~~~}
 
-    Define \[
+    We now use the fixed point iteration method to find the root. Define \[
         g(x) = 0.2 \sin(x) + 0.5 \qquad f(x) = x - g(x)
-    \] and we apply functional iteration to this \( g(x) \) with \( x_0 = 0 \).
-
-    We compute \[
-        x_0 = 0 \qquad x_{i+1}
-        \qquad
-        x_{i+1} = g(x_i)
+    \] and we apply functional iteration to this \( g(x) \) with \( x_0 = 0 \). Compute \[
+        x_0 = 0 \qquad x_{i+1} = g(x_i)
     \] until \[
         | x_{i+1} - x_i | \leq 5 \times 10^{-7}
     \]
@@ -257,7 +344,7 @@ If it converges, then \[
         \centering
         \begin{tabular}{c|c|c}
             \( i \) & \( x_i \)             & \( | x_i - x_{i-1} | \)
-            \\ \hline
+            \\ \hline \hline
             0       & \texttt{0.000000E+00} &                         \\
             1       & \texttt{5.000000E-01} & \texttt{5.0e-01}        \\
             2       & \texttt{5.958851E-01} & \texttt{9.6E-02}        \\
@@ -310,17 +397,81 @@ If it converges, then \[
     \begin{table}[H]
         \centering
         \begin{tabular}{c|c|c}
-            \( i \) & \( x_i \)               & \( | x_i - x_{i-1} | \) \\ \hline
-            0       & \texttt{1.000000e+00}   &                         \\
-            1       & \texttt{0.000000e+00}   & \texttt{1.0e+00}        \\
-            2       & \texttt{-1.000000e+00}  & \texttt{1.0e+00}        \\
-            3       & \texttt{-2. 000000e+00} & \texttt{1.0e+00}        \\
-            4       & \texttt{-9.000000e+00}  & \texttt{7.0e+00}        \\
-            5       & \texttt{-7.300000e+02}  & \texttt{7.2e+02}        \\
-            6       & \texttt{-3.890170e+08}  & \texttt{3.9e+08}        \\
-            7       & \texttt{-5.887159e+25}  & \texttt{5.9e+25}        \\
-            8       & \texttt{-2.040409e+77}  & \texttt{2.0e+77}        \\
+            \( i \) & \( x_i \)               & \( | x_i - x_{i-1} | \)
+            \\ \hline \hline
+            0       & \texttt{1.000000e+00}   &
+            \\
+            1       & \texttt{0.000000e+00}   & \texttt{1.0e+00}
+            \\
+            2       & \texttt{-1.000000e+00}  & \texttt{1.0e+00}
+            \\
+            3       & \texttt{-2.000000e+00}  & \texttt{1.0e+00}
+            \\
+            4       & \texttt{-9.000000e+00}  & \texttt{7.0e+00}
+            \\
+            5       & \texttt{-7.300000e+02}  & \texttt{7.2e+02}
+            \\
+            6       & \texttt{-3.890170e+08}  & \texttt{3.9e+08}
+            \\
+            7       & \texttt{-5.887159e+25}  & \texttt{5.9e+25}
+            \\
+            8       & \texttt{-2.040409e+77}  & \texttt{2.0e+77}
+            \\
             9       & \texttt{-8.494771e+231} & \texttt{8.5e+231}
+        \end{tabular}
+    \end{table}
+    This series diverges, and we do not get a root. We try another starting point, \( x_0 = 2 \).
+    \begin{table}[H]
+        \centering
+        \begin{tabular}{c|c|c}
+            \( i \) & \( x_i \)              & \( | x_i - x_{i-1} | \)
+            \\ \hline \hline
+            0       & \texttt{2.000000e+00}  &
+            \\
+            1       & \texttt{7.000000e+00}  & \texttt{5.0e+00}
+            \\
+            2       & \texttt{3.420000e+02}  & \texttt{3.4e+02}
+            \\
+            3       & \texttt{4.000169e+07}  & \texttt{4.0e+07}
+            \\
+            4       & \texttt{6.400810e+22}  & \texttt{6.4e+22}
+            \\
+            5       & \texttt{2.622435e+68}  & \texttt{2.6e+68}
+            \\
+            6       & \texttt{1.803492e+205} & \texttt{1.8e+205}
+        \end{tabular}
+    \end{table}
+
+    Alternatively, we observe that \[
+        f(x) = x^3 - (x + 1)
+    \] and try \[
+        g(x) = (x + 1)^{\sfrac{1}{3}}
+    \] with \( x_0 = 1 \).
+
+    \begin{table}[H]
+        \centering
+        \begin{tabular}{c|c|c}
+            \( i \) & \( x_i \)             & \( | x_i - x_{i-1} | \)
+            \\ \hline \hline
+            0       & \texttt{1.000000e+00} &
+            \\
+            1       & \texttt{1.259921e+00} & \texttt{2.6e-01}
+            \\
+            2       & \texttt{1.312294e+00} & \texttt{5.2e-02}
+            \\
+            3       & \texttt{1.322354e+00} & \texttt{1.0e-02}
+            \\
+            4       & \texttt{1.324269e+00} & \texttt{1.9e-03}
+            \\
+            5       & \texttt{1.324633e+00} & \texttt{3.6e-04}
+            \\
+            6       & \texttt{1.324702e+00} & \texttt{6.9e-05}
+            \\
+            7       & \texttt{1.324715e+00} & \texttt{1.3e-05}
+            \\
+            8       & \texttt{1.324717e+00} & \texttt{2.5e-06}
+            \\
+            9       & \texttt{1.324718e+00} & \texttt{4.7e-07}
         \end{tabular}
     \end{table}
 \end{example}

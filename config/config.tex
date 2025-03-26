@@ -45,7 +45,7 @@
 % Hyperref ---------------------------------------------------------------------
 \hypersetup{
     colorlinks,
-    linkcolor=black, 
+    linkcolor=black,
     filecolor=Pink-300,
     urlcolor=Blue-700,
     citecolor=black,
@@ -151,7 +151,7 @@
 \newcounter{universal}
 
 % Corollary --------------------------------------------------------------------
-\thmbox{Corollary} [Corollary] [Purple-50] [Purple-800] 
+\thmbox{Corollary} [Corollary] [Purple-50] [Purple-800]
 [use counter=universal, number within=section]
 
 \newenvironment{corollary}[1][] {\begin{Corollary}{#1}{}} {\end{Corollary}}
@@ -168,8 +168,8 @@
 
 \newenvironment{example}
 {\begin{Example}}
-% {\begin{Example}\setlength{\parindent}{0pt}}
-{\hfill\ensuremath{\color{primary}\diamondsuit}\end{Example}}
+        % {\begin{Example}\setlength{\parindent}{0pt}}
+        {\hfill\ensuremath{\color{primary}\diamondsuit}\end{Example}}
 
 % Lemma ------------------------------------------------------------------------
 \thmbox{Lemma} [Lemma] [Green-50] [Green-800]
@@ -423,21 +423,21 @@
         \fill[primary] (current page.south west) rectangle (current page.north east);
 
         \foreach \i in {2.5,...,22} {
-            \node[rounded corners,primary!60,draw,regular polygon,regular polygon sides=6, minimum size=\i cm,ultra thick] at ($(current page.west)+(2.5,-5)$) {} ;
-        }
+                \node[rounded corners,primary!60,draw,regular polygon,regular polygon sides=6, minimum size=\i cm,ultra thick] at ($(current page.west)+(2.5,-5)$) {} ;
+            }
 
         % Background Polygon
         \foreach \i in {0.5,...,22} {
-            \node[rounded corners,primary!60,draw,regular polygon,regular polygon sides=6, minimum size=\i cm,ultra thick] at ($(current page.north west)+(2.5,0)$) {} ;
-        }
+                \node[rounded corners,primary!60,draw,regular polygon,regular polygon sides=6, minimum size=\i cm,ultra thick] at ($(current page.north west)+(2.5,0)$) {} ;
+            }
 
         \foreach \i in {0.5,...,22} {
-            \node[rounded corners,primary!90,draw,regular polygon,regular polygon sides=6, minimum size=\i cm,ultra thick] at ($(current page.north east)+(0,-9.5)$) {} ;
-        }
+                \node[rounded corners,primary!90,draw,regular polygon,regular polygon sides=6, minimum size=\i cm,ultra thick] at ($(current page.north east)+(0,-9.5)$) {} ;
+            }
 
         \foreach \i in {21,...,6} {
-            \node[primary!85,rounded corners,draw,regular polygon,regular polygon sides=6, minimum size=\i cm,ultra thick] at ($(current page.south east)+(-0.2,-0.45)$) {} ;
-        }
+                \node[primary!85,rounded corners,draw,regular polygon,regular polygon sides=6, minimum size=\i cm,ultra thick] at ($(current page.south east)+(-0.2,-0.45)$) {} ;
+            }
 
         % Title
         \node[left,primary!5,minimum width=0.625*\paperwidth,minimum height=3cm, rounded corners] at ($(current page.north east)+(0,-9.5)$) {
