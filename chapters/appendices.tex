@@ -7,3 +7,96 @@
 \section*{Calculating Cubic Splines}
 
 Define \( S_i(t) = a_i + b_i(t - t_i) + c_i(t - t_i)^2 + d_i(t - t_i)^3 \) for \( i = 1, 2, \dots, m \).
+
+\chapter*{Appendix B. Bisection Applied to \( f(x) = x - 0.2 \sin(x) - 0.5 \)}
+
+\begin{longtable}[t]{c|c|c|c|c|c|c|c}
+    Step                  &
+    \( L \)               & \( f(L) \)             &
+    \( R \)               & \( f(R) \)             &
+    \( M \)               & \( f(M) \)             & Max Error        \\ \hline \hline
+    1                     &
+    \texttt{0.000000E+00} & \(-\)                  &
+    \texttt{1.000000E+00} & \(+\)                  &
+    \texttt{5.000000E-01} & \texttt{-9.58511E-02 } & \texttt{5.0-01 } \\
+    2                     &
+    \texttt{5.000000E-01} & \(-\)                  &
+    \texttt{1.000000E+00} & \(+\)                  &
+    \texttt{7.500000E-01} & \texttt{1.136722E-01 } & \texttt{2.5E-01} \\
+    3                     &
+    \texttt{5.000000E-01} & \(-\)                  &
+    \texttt{7.500000E-01} & \(+\)                  &
+    \texttt{6.250000E-01} & \texttt{7.980545E-03 } & \texttt{1.2E-01} \\
+    4                     &
+    \texttt{5.000000E-01} & \(-\)                  &
+    \texttt{6.250000E-01} & \(+\)                  &
+    \texttt{5.625000E-01} & \texttt{-4.416053E-02} & \texttt{6.2E-02} \\
+    5                     &
+    \texttt{5.625000E-01} & \(-\)                  &
+    \texttt{6.250000E-01} & \(+\)                  &
+    \texttt{5.937500E-01} & \texttt{-1.814463E-02} & \texttt{3.1E-02} \\
+    6                     &
+    \texttt{5.937500E-01} & \(-\)                  &
+    \texttt{6.250000E-01} & \(+\)                  &
+    \texttt{6.093750E-01} & \texttt{-5.096014E-03} & \texttt{1.6E-02} \\
+    7                     &
+    \texttt{6.093750E-01} & \(-\)                  &
+    \texttt{6.250000E-01} & \(+\)                  &
+    \texttt{6.171875E-01} & \texttt{1.438734E-03 } & \texttt{7.8E-03} \\
+    8                     &
+    \texttt{6.093750E-01} & \(-\)                  &
+    \texttt{6.171875E-01} & \(+\)                  &
+    \texttt{6.132812E-01} & \texttt{-1.829518E-03} & \texttt{3.9E-03} \\
+    9                     &
+    \texttt{6.132812E-01} & \(-\)                  &
+    \texttt{6.171875E-01} & \(+\)                  &
+    \texttt{6.152344E-01} & \texttt{-1.956125E-04} & \texttt{2.0E-03} \\
+    10                    &
+    \texttt{6.152344E-01} & \(-\)                  &
+    \texttt{6.171875E-01} & \(+\)                  &
+    \texttt{6.162109E-01} & \texttt{6.215054E-04 } & \texttt{9.8E-04} \\
+    11                    &
+    \texttt{6.152344E-01} & \(-\)                  &
+    \texttt{6.162109E-01} & \(+\)                  &
+    \texttt{6.157227E-01} & \texttt{2.129326E-04 } & \texttt{4.9E-04} \\
+    12                    &
+    \texttt{6.152344E-01} & \(-\)                  &
+    \texttt{6.157227E-01} & \(+\)                  &
+    \texttt{6.154785E-01} & \texttt{8.656611E-06 } & \texttt{2.4E-04} \\
+    13                    &
+    \texttt{6.152344E-01} & \(-\)                  &
+    \texttt{6.154785E-01} & \(+\)                  &
+    \texttt{6.153564E-01} & \texttt{-9.347883E-05} & \texttt{1.2E-04} \\
+    14                    &
+    \texttt{6.153564E-01} & \(-\)                  &
+    \texttt{6.154785E-01} & \(+\)                  &
+    \texttt{6.154175E-01} & \texttt{-4.241132E-05} & \texttt{6.1E-05} \\
+    15                    &
+    \texttt{6.154175E-01} & \(-\)                  &
+    \texttt{6.154785E-01} & \(+\)                  &
+    \texttt{6.154480E-01} & \texttt{-1.687741E-05} & \texttt{3.1E-05} \\
+    16                    &
+    \texttt{6.154480E-01} & \(-\)                  &
+    \texttt{6.154785E-01} & \(+\)                  &
+    \texttt{6.154633E-01} & \texttt{-4.110413E-06} & \texttt{1.5E-05} \\
+    17                    &
+    \texttt{6.154633E-01} & \(-\)                  &
+    \texttt{6.154785E-01} & \(+\)                  &
+    \texttt{6.154709E-01} & \texttt{2.273095E-06 } & \texttt{7.6E-06} \\
+    18                    &
+    \texttt{6.154633E-01} & \(-\)                  &
+    \texttt{6.154709E-01} & \(+\)                  &
+    \texttt{6.154671E-01} & \texttt{-9.186596E-07} & \texttt{3.8E-06} \\
+    19                    &
+    \texttt{6.154671E-01} & \(-\)                  &
+    \texttt{6.154709E-01} & \(+\)                  &
+    \texttt{6.154690E-01} & \texttt{6.772177E-07 } & \texttt{1.9E-06} \\
+    20                    &
+    \texttt{6.154671E-01} & \(-\)                  &
+    \texttt{6.154690E-01} & \(+\)                  &
+    \texttt{6.154680E-01} & \texttt{-1.207210E-07} & \texttt{9.5E-07} \\
+    21                    &
+    \texttt{6.154680E-01} & \(-\)                  &
+    \texttt{6.154690E-01} & \(+\)                  &
+    \texttt{6.154685E-01} & \texttt{2.782483E-07 } & \texttt{4.8E-07}
+\end{longtable}

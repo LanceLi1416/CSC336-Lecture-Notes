@@ -164,3 +164,163 @@ We have errors \begin{align*}
               \item Does not make use of much information about \( f(x) \)
           \end{itemize}
 \end{itemize}
+
+\begin{example}
+    Suppose we want to find the root of \[
+        f(x) = x - 0.2 \sin(x) - 0.5
+    \] with absolute error \( | x_i - x^\ast | \leq 5 \times 10^{-7} \).
+
+    How many iterations is required to achieve this error?
+
+    Recall that we are given \[
+        e_n \leq \frac{1}{2^n} ( R_1 - L_1 )
+    \] and thus \[
+        e_n \leq \frac{1}{2^n} (1 - 0) \leq 5 \times 10^{-7}
+    \] We solve for \( n \) to get \begin{align*}
+        2^n
+         & \geq 0.2 \times 10^7
+        \\
+        n
+         & \geq \log_2 \left( 0.2 \times 10^7 \right) \doteq 20.93
+    \end{align*}
+    Thus, we need at least 21 iterations.
+\end{example}
+
+\section{Fixed Point Iteration}
+
+\begin{note}
+    The problem of finding \( x^\ast \) such that \( f(x^\ast) = 0 \) is equivalent to the problem of finding \( x = p^\ast \) such that \( g(p^\ast) = p^\ast \) where \( g(x) = x - f(x) \).
+\end{note}
+
+\begin{definition}[Fixed Point]\index{Fixed Point}
+    A point \( p^\ast \) is called a \term{fixed point} of a function \( g(x) \) if and only if \( g(p^\ast) = p^\ast \).
+\end{definition}
+
+\begin{example}
+    Consider \( g(x) = x^3 - x - 1 \).
+    \begin{figure}[H]
+        \centering
+        \begin{tikzpicture}
+            \begin{axis}[
+                    axis lines = middle,
+                    xlabel = \( x \),
+                    ylabel = \( g(x) \),
+                    xmin = -2, xmax = 2,
+                    ymin = -2, ymax = 2,
+                ]
+                \addplot[domain=-2:2, samples=100, color=blue]{x^3 - x - 1};
+                \addplot[domain=-2:2, samples=100, color=red]{x};
+            \end{axis}
+        \end{tikzpicture}
+        \caption{Graph of \( g(x) = x^3 - x - 1 \). The fixed points of \( g \) are the points on \( g \) intersecting the line \( y = x \).}
+    \end{figure}
+\end{example}
+
+How do we find the fixed point of a function? We could use either fixed point iteration or function iteration.
+
+\subsection{Fixed Point Iteration}
+
+Define the sequence \[
+    x_0 \text{ given } \qquad x_{i+1} = g(x_i)
+\] for \( i = 0, 1, 2, \dots \).
+
+If it converges, then \[
+    \lim_{i \to \infty} x_i = x^\ast
+\]
+
+\begin{note}
+    Unlike bisection method, we do not have a guarantee of convergence.
+\end{note}
+
+\begin{example}
+    Find a root of \[
+        f(x) = x - 0.2 \sin (x) - 0.5
+    \]
+
+    Via the bisection method, we get a root at \( x^\ast \doteq 0.6514685 \) in 21 iterations.
+
+    We now use the fixed point iteration method to find the root.
+
+    Define \[
+        g(x) = 0.2 \sin(x) + 0.5 \qquad f(x) = x - g(x)
+    \] and we apply functional iteration to this \( g(x) \) with \( x_0 = 0 \).
+
+    We compute \[
+        x_0 = 0 \qquad x_{i+1}
+        \qquad
+        x_{i+1} = g(x_i)
+    \] until \[
+        | x_{i+1} - x_i | \leq 5 \times 10^{-7}
+    \]
+
+    \begin{table}[H]
+        \centering
+        \begin{tabular}{c|c|c}
+            \( i \) & \( x_i \)             & \( | x_i - x_{i-1} | \)
+            \\ \hline
+            0       & \texttt{0.000000E+00} &                         \\
+            1       & \texttt{5.000000E-01} & \texttt{5.0e-01}        \\
+            2       & \texttt{5.958851E-01} & \texttt{9.6E-02}        \\
+            3       & \text{6.122483e-01}   & \texttt{1.6E-02}        \\
+            4       & \text{6.149418e-01}   & \texttt{2.7E-03}        \\
+            5       & \text{6.153822e-01}   & \texttt{4.4E-04}        \\
+            6       & \text{6.154541e-01}   & \texttt{7.2E-05}        \\
+            7       & \text{6.154659e-01}   & \texttt{1.2E-05}        \\
+            8       & \text{6.154678e-01}   & \texttt{1.9E-06}        \\
+            9       & \text{6.154681e-01}   & \texttt{3.1E-07}
+        \end{tabular}
+    \end{table}
+\end{example}
+
+\begin{remark}
+    The value of \( x_0 \) may affect the number of iterations required to converge.
+
+    \begin{table}[H]
+        \centering
+        \begin{tabular}{c|c}
+            \( x_0 \)   & Steps to Convergence
+            \\ \hline
+            \( 1 \)     & 9
+            \\
+            \( -1 \)    & 10
+            \\
+            \( 10 \)    & 10
+            \\
+            \( -100 \)  & 7
+            \\
+            \( 1000 \)  & 9
+            \\
+            \( -1000 \) & 10
+        \end{tabular}
+    \end{table}
+\end{remark}
+
+% TODO: Plot
+
+\begin{example}
+    Use fixed point iteration to find the root of \[
+        f(x) = x^3 - x - 1
+    \]
+    We note that \[
+        f(x) = (x^3 - 1) - x
+    \] Define \[
+        g(x) = x^3 - 1
+    \] and we try fixed iteration on \( g(x) \) from \( x_0 = 1 \).
+
+    \begin{table}[H]
+        \centering
+        \begin{tabular}{c|c|c}
+            \( i \) & \( x_i \)               & \( | x_i - x_{i-1} | \) \\ \hline
+            0       & \texttt{1.000000e+00}   &                         \\
+            1       & \texttt{0.000000e+00}   & \texttt{1.0e+00}        \\
+            2       & \texttt{-1.000000e+00}  & \texttt{1.0e+00}        \\
+            3       & \texttt{-2. 000000e+00} & \texttt{1.0e+00}        \\
+            4       & \texttt{-9.000000e+00}  & \texttt{7.0e+00}        \\
+            5       & \texttt{-7.300000e+02}  & \texttt{7.2e+02}        \\
+            6       & \texttt{-3.890170e+08}  & \texttt{3.9e+08}        \\
+            7       & \texttt{-5.887159e+25}  & \texttt{5.9e+25}        \\
+            8       & \texttt{-2.040409e+77}  & \texttt{2.0e+77}        \\
+            9       & \texttt{-8.494771e+231} & \texttt{8.5e+231}
+        \end{tabular}
+    \end{table}
+\end{example}
