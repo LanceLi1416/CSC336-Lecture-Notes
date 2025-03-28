@@ -27,6 +27,8 @@ We could iterate over \( n \) until \( \left| S_n - S_{n-1} \right| < \text{tole
 
 We observe that the running time is dependent on the value of \( x \). We need to find a better way to compute the sum -- with more consistent running time.
 
+    {~~~}
+
 Using the python program,
 \begin{itemize}
     \item When \( x = -30 \), convergence happened after 97 terms, to \( -6.0 \times 10^{-5} \).
@@ -51,9 +53,9 @@ Using the python program,
 Clearly, we have inaccuracy when \( x = -40 \), as \( 0 < e^x < 1 \) for all \( x < 0 \). The math textbooks'
 s techniques does not always provide good computational algorithms.
 
-Course goal:
+    {~~~}
 
-Show computational algorithms and discuss why they are good.
+\textbf{Course goal:} Show computational algorithms and discuss why they are good.
 
 \begin{example}[\( e^x \) Better Algorithm]
     A better algorithm is as follows

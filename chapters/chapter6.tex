@@ -309,7 +309,7 @@ We have errors \begin{align*}
     \end{figure}
 \end{example}
 
-We could use fixed point iteration or function iteration to find the fixed point of a function.
+We could use \term{fixed point iteration} (or, \term{functional iteration}) to find the fixed point of a function.\index{Fixed Point Iteration}\index{Functional Iteration}
 
 \subsection{Fixed Point Iteration}
 
@@ -474,4 +474,154 @@ Define the sequence \[
             9       & \texttt{1.324718e+00} & \texttt{4.7e-07}
         \end{tabular}
     \end{table}
+    which converges to \( x^\ast \doteq 1.324718 \) in 9 iterations.
+\end{example}
+
+\subsection{Convergence of Fixed Point Iteration}
+
+\begin{theorem}[Fixed Point Theorem]
+    \bold{(a)} If \( g \in C[a, b] \) with \( a < b \), and if for all \( x \in [a, b] \), \( g(x) \in [a, b] \), then \( g \) must have a fixed point in the interval \( [a, b] \).
+
+        {~~~}
+
+    \bold{(b)} If \( g'(x) \) exists on \( (a, b) \) and \( | g'(x) | \leq k < 1 \) for some constant \( k \) and all \( x \in (a, b) \), then the fixed point in \( [a, b] \) is unique.
+\end{theorem}
+
+\begin{proof}(Part (a) Existence)
+
+    If \( g(a) = a \), or \( g(b) = b \), then \( g(x) \) has a fixed point in \( [a, b] \), namely \( a \) or \( b \).
+
+    Otherwise, \( g(a) \neq a \) and \( g(b) \neq b \).
+
+    Then, \( g(a) > a \) and \( g(b) < b \).
+
+    Since \( g(x) \in [a, b] \) for all \( x \in [a, b] \), we have \[
+        g(a) - a > 0 \qquad g(b) - b < 0
+    \]
+    Take \( h(x) = g(x) - x \). Then,
+    \begin{enumerate}
+        \item \( h(x) \) is continuous in \( [a, b] \)
+        \item \( h(a) > 0 \)
+        \item \( h(b) < 0 \)
+    \end{enumerate}
+    and hence by IVT, \( h(x) \) has a root between \( a, b \).
+
+    That is, exists \( x^\ast in [a, b] \) such that \[
+        h(x^\ast) = 0 \implies g(x^\ast) - x^\ast = 0 \implies g(x^\ast) = x^\ast
+    \] and \( x^\ast \in [a, b] \) is a fixed point of \( g(x) \).
+\end{proof}
+
+\begin{proof}(Part (b) Uniqueness)
+
+    Suppose for contradiction that \( p, q \) are two fixed points of \( g(x) \) in \( [a, b] \) with \( p \neq q \).
+
+    Then, by the mean value theorem, exists \( c \in (p, q) \) such that \[
+        g'(c) = \frac{g(q) - g(p)}{q - p}
+    \]
+    Then we have \begin{align*}
+        | p - q | & = | g(p) - g(q) |                       \\
+                  & = | g'(c) | \cdot | p - q |             \\
+                  & \leq k | p - q |                        \\
+                  & < | p - q | \text{ (since \( k < 1 \))}
+    \end{align*}
+    We have a contradiction that \( | p - q | < | p - q | \).
+
+    Thus, \( p, q \) must be equal, and the fixed point of \( g(x) \) is unique in \( [a, b] \).
+\end{proof}
+
+\begin{example}
+    Consider \[
+        g(x) = 0.2 \sin(x) + 0.5
+    \] between the interval \( [0, 1] \).
+
+    \begin{figure}[H]
+        \centering
+        \begin{tikzpicture}[scale=0.75]
+            \begin{axis}[
+                    axis lines = middle,
+                    xlabel = \( x \),
+                    ylabel = \( g(x) \),
+                    xmin = 0, xmax = 1,
+                    ymin = 0, ymax = 1,
+                ]
+                \addplot[domain=-0.5:1.5, samples=100, color=blue]{0.2 * sin(deg(x)) + 0.5};
+                \addplot[domain=-0.5:1.5, samples=100, color=red]{x};
+                \addplot[only marks, mark=*, color=red] coordinates {(0.61547, 0.61547)};
+
+                \addlegendentry{\( g(x) \)}
+                \addlegendentry{\( y = x \)}
+                \addlegendentry{\( g(x) = x \)}
+
+            \end{axis}
+        \end{tikzpicture}
+    \end{figure}
+
+    \begin{itemize}
+        \item Since \( \sin(x) \in [-1, 1] \) for all \( x \), we have \[
+                  g(x) \in [0.2 \cdot (-1) + 0.5, 0.2 \cdot 1 + 0.5] = [0.3, 0.7] \subsetneq [0, 1]
+              \]
+
+              \( g(x) \) is continuous in \( [0, 1] \), and thus by the fixed point theorem, \( g(x) \) has a fixed point in \( [0, 1] \).
+
+        \item We have \[
+                  g'(x) = 0.2 \cos(x)
+              \] and since \( \cos(x) \in [0, 1] \), we have \[
+                  | g'(x) | \leq 0.2 < 1
+              \] for all \( x \in [0, 1] \).
+
+              Thus, by the fixed point theorem, \( g(x) \) has a unique fixed point in \( [0, 1] \).
+    \end{itemize}
+\end{example}
+
+\begin{remark}
+    The conditions of the theorem are sufficient, but not necessary.
+\end{remark}
+
+When will functional iteration converge? Recall that for functional iteration, we are given \( x_0 \) and compute the series \( x_{i+1} = g(x_i) \) for \( i = 0, 1, 2, \dots \) until \( | x_{i+1} - x_i | \leq \text{ABS\_TOL} \).
+
+    {~~~}
+
+Depending on the derivative at the root, \( g'(x^\ast) \), we can have different convergence behaviour.
+
+Suppose \[
+    g(x^\ast) = x^\ast
+\] and that the fixed point iteration gives \[
+    x_i = x^\ast + h
+\] where \( h \) is small.
+
+Then, \begin{align*}
+    x_{i+1} & = g(x_i)                                                        \\
+            & = g(x^\ast + h)                                                 \\
+            & = g(x^\ast) + h g'(x^\ast) + \frac{h^2}{2!} g''(x^\ast) + \dots \\
+            & \doteq g(x^\ast) + h g'(x^\ast)
+\end{align*} so \begin{align*}
+    x_{i+1} - g(x^\ast) & \doteq h g'(x^\ast) \\
+    x_{i+1} - x^\ast    & \doteq h g'(x^\ast)
+\end{align*}
+Thus, error in \( (i+1)^th \) approximation is \[
+    | x_{i+1} - x^\ast | = | g'(x^\ast) | \cdot | x_i - x^\ast |
+\] which is \[
+    | g'(x^\ast) | \text{ times the error in the \( i^{th} \) approximation}
+\] and the convergence behaviour depends on the value of \( g'(x^\ast) \).
+
+\begin{itemize}
+    \item If \( |g'(x^\ast) < 1 \), then \( x_{i+1} \) is closer to \( x^\ast \) than \( x_i \), and the error converges linearly. This is called \term{attracting fixed point}.
+    \item If \( |g'(x^\ast) = 1 \), then \( x_{i+1} \) is farther from \( x^\ast \) than \( x_i \), and the error diverges. This is called \term{repulsing fixed point}.
+\end{itemize}
+
+\begin{example}
+    Consider the functions
+    \[
+        g_1(x) = \frac{1}{2} \left( x^3 + x \right)
+    \] \[
+        g_2(x) = -\frac{1}{2} \left( x^3 + 1 \right)
+    \]
+
+    \begin{itemize}
+        \item \( g_1 \) has fixed points \[
+                  x = -1 \qquad x = 0 \qquad x = 1
+              \] and first derivatives \[
+                  g'(-1) = 2 \qquad g'(0) = \frac{1}{2} \qquad g'(1) = 2
+              \]
+    \end{itemize}
 \end{example}

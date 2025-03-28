@@ -9,6 +9,8 @@ There is only finite space in computer. How would we store \( \pi \), an irratio
         y_n = \int_0^1 \frac{x^n}{x + 5} \, dx
     \] for \( n = 0, 1, 2, \ldots, 8 \), with 3 decimal digits of accuracy.
 
+        {~~~}
+
     There are several properties that I can claim:
 
     \begin{itemize}
@@ -51,8 +53,11 @@ There is only finite space in computer. How would we store \( \pi \), an irratio
 
     Clearly, something went wrong. We have a negative value for \( y_4 \), which is impossible. We also have \( y_3 > y_2 \). The problem is that we are using floating point arithmetic, which is not exact. We are losing precision in our calculations.
 
+        {~~~}
+
     What if we leave \( y_0 \) as an unevaluated term?
 
+    \vspace{-1em}
     \begin{align*}
         y_1 & = 1 - 5y_0                  \\
         y_2 & = \frac{1}{2} - 5y_1        \\
@@ -213,6 +218,7 @@ In the early days of computing, different manufacturers used different floating 
 \end{remark}
 
 \begin{note}[Types in Different Languages]
+    \vspace{-1em}
     \begin{table}[H]
         \centering
         \begin{tabular}{rcc}
@@ -295,11 +301,11 @@ Note that the distribution of floating point numbers is not uniform. There are m
         x = 3.00 \times 10^5, y = 3.00 \times 10^5, \qquad x, y \in \R
     \]
 
-    Computing \[
-        z = x^2 + y^2
-    \] would give \[
+    Computing \( z = x^2 + y^2 \) would give \[
         z = 1.60 \times 10^{11} + 9.00 \times 10^{10} \notin F(10, 3, -10, 10)
     \] and hence \( fl(z) = +\text{Inf} \).
+
+        {~~~}
 
     What if we instead want to compute \[
         z = \sqrt{x^2 + y^2}?
