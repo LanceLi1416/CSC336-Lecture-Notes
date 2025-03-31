@@ -172,6 +172,8 @@ We have errors \begin{align*}
 
     How many iterations is required to achieve this error?
 
+    {~~~}
+
     Recall that we are given \[
         e_n \leq \frac{1}{2^n} ( R_1 - L_1 )
     \] and thus \[
@@ -184,6 +186,10 @@ We have errors \begin{align*}
          & \geq \log_2 \left( 0.2 \times 10^7 \right) \doteq 20.93
     \end{align*}
     Thus, we need at least 21 iterations.
+
+        {~~~}
+
+    Indeed, we verify with python:
 
     \begin{longtable}[t]{c|c|c|c|c|c|c|c}
         Step                  &
@@ -274,9 +280,12 @@ We have errors \begin{align*}
         \texttt{6.154680E-01} & \(-\)                  &
         \texttt{6.154690E-01} & \(+\)                  &
         \texttt{6.154685E-01} & \texttt{2.782483E-07}  & \texttt{4.8E-07}
+        \\
+        \caption{Bisection method for \( f(x) = x - 0.2 \sin(x) - 0.5 \)}
     \end{longtable}
 \end{example}
 
+\newpage
 \section{Fixed Point Iteration}
 
 \begin{note}
@@ -484,7 +493,7 @@ Define the sequence \[
 
         {~~~}
 
-    \bold{(b)} If \( g'(x) \) exists on \( (a, b) \) and \( | g'(x) | \leq k < 1 \) for some constant \( k \) and all \( x \in (a, b) \), then the fixed point in \( [a, b] \) is unique.
+    \bold{(b)} Furthermore, if \( g'(x) \) exists on \( (a, b) \) and \( | g'(x) | \leq k < 1 \) for some constant \( k \) and all \( x \in (a, b) \), then the fixed point in \( [a, b] \) is unique.
 \end{theorem}
 
 \begin{proof}(Part (a) Existence)
@@ -601,27 +610,184 @@ Then, \begin{align*}
 Thus, error in \( (i+1)^th \) approximation is \[
     | x_{i+1} - x^\ast | = | g'(x^\ast) | \cdot | x_i - x^\ast |
 \] which is \[
-    | g'(x^\ast) | \text{ times the error in the \( i^{th} \) approximation}
+    | g'(x^\ast) | \times \text{the error in the \( i^{th} \) approximation}
 \] and the convergence behaviour depends on the value of \( g'(x^\ast) \).
 
 \begin{itemize}
-    \item If \( |g'(x^\ast) < 1 \), then \( x_{i+1} \) is closer to \( x^\ast \) than \( x_i \), and the error converges linearly. This is called \term{attracting fixed point}.
-    \item If \( |g'(x^\ast) = 1 \), then \( x_{i+1} \) is farther from \( x^\ast \) than \( x_i \), and the error diverges. This is called \term{repulsing fixed point}.
+    \item If \( |g'(x^\ast)| < 1 \), then \( x_{i+1} \) is closer to \( x^\ast \) than \( x_i \), and the error converges linearly. This is called \term{attracting fixed point}.
+    \item If \( |g'(x^\ast)| = 1 \), then \( x_{i+1} \) is farther from \( x^\ast \) than \( x_i \), and the error diverges. This is called \term{repulsing fixed point}.
 \end{itemize}
 
 \begin{example}
     Consider the functions
     \[
         g_1(x) = \frac{1}{2} \left( x^3 + x \right)
-    \] \[
+        \qquad \text{and} \qquad
         g_2(x) = -\frac{1}{2} \left( x^3 + 1 \right)
+    \]
+    Differentiating \( g_1, g_2 \) we get \[
+        {g_1}'(x) = \frac{1}{2} (3x^2 + 1)
+        \qquad \text{and} \qquad
+        {g_2}'(x) = -\frac{1}{2} (3x^2 + 1)
     \]
 
     \begin{itemize}
-        \item \( g_1 \) has fixed points \[
+        \item \( g_1 \) has three fixed points \[
                   x = -1 \qquad x = 0 \qquad x = 1
               \] and first derivatives \[
                   g'(-1) = 2 \qquad g'(0) = \frac{1}{2} \qquad g'(1) = 2
               \]
     \end{itemize}
+
+    \begin{figure}[H]
+        \centering
+        \begin{tikzpicture}
+            \begin{axis}[
+                    axis lines = middle,
+                    xlabel = \( x \),
+                    ylabel = \( y \),
+                    xmin = -2, xmax = 2,
+                    ymin = -2, ymax = 2,
+                    legend style = {at={(1, 0)}, anchor = south east},
+                ]
+                \addplot[domain=-2:2, samples=100, color=blue]{(x^3 + x) / 2};
+                \addplot[domain=-2:2, samples=100, color=red]{x};
+                \addplot[domain=-2:2, samples=100, color=orange, dashed]{(3 * x^2 + 1) / 2};
+
+                \addplot[only marks, mark=*, color=red] coordinates {(-1, -1) (0, 0) (1, 1)};
+
+                \addlegendentry{\( g_1(x) \)}
+                \addlegendentry{\( y = x \)}
+                \addlegendentry{\( g_1'(x) \)}
+                \addlegendentry{Fixed Points}
+            \end{axis}
+        \end{tikzpicture}
+        \caption{Graph of \( g_1(x) = \frac{1}{2} (x^3 + x) \). The fixed points of \( g_1 \) are the points on \( g_1 \) intersecting the line \( y = x \): \( x = -1, 0, 1 \)}
+    \end{figure}
+
+    \begin{itemize}
+        \item \( x_0 < 1 \), we go towards \( - \infty \)
+        \item \( -1 < x_0 < 0 \), we go towards \( 0 \)
+        \item \( x_0 > 1 \), we go towards \( + \infty \)
+    \end{itemize}
+
+    Similarly, for \( g_2 \), we get one fixed point \( x = 0 \) with \( g'(0) = -\frac{1}{2} \)
+
+    \begin{figure}[H]
+        \centering
+        \begin{tikzpicture}
+            \begin{axis}[
+                    axis lines = middle,
+                    xlabel = \( x \),
+                    ylabel = \( y \),
+                    xmin = -2, xmax = 2,
+                    ymin = -2, ymax = 2,
+                ]
+                \addplot[domain=-2:2, samples=100, color=blue]{-(x^3 + 1) / 2};
+                \addplot[domain=-2:2, samples=100, color=red]{x};
+                \addplot[domain=-2:2, samples=100, color=orange, dashed]{-(3 * x^2 + 1) / 2};
+
+                \addplot[only marks, mark=*, color=red] coordinates {(0, 0)};
+
+                \addlegendentry{\( g_2(x) \)}
+                \addlegendentry{\( y = x \)}
+                \addlegendentry{\( g_2'(x) \)}
+                \addlegendentry{Fixed Points}
+            \end{axis}
+        \end{tikzpicture}
+        \caption{Graph of \( g_2(x) = -\frac{1}{2} (x^3 + 1) \). The fixed point of \( g_2 \) is the point on \( g_2 \) intersecting the line \( y = x \): \( x = 0 \)}
+    \end{figure}
+
+    The basin of attraction of \( g_2 \) for \( x^\ast = 0 \) is \( -1 < x < 1 \).
+\end{example}
+
+\subsubsection{Summarization of Theorems}
+
+\begin{remark}[Fixed Point Theorem]
+    Let \( g(x) \in C[a, b] \) be such that \( g(x) \in [a, b] \) for all \( x \in [a, b] \). Suppose in addition, \( g \) is differentiable on \( (a, b) \) and \( |g'(x) \leq k < 1 \) for some constant \( k \) and all \( x \in (a, b) \).
+
+        {~~~}
+
+    Then, for any\( x_0 \in [a, b] \) the fixed point iteration \[
+        x_{i+1} = g(x_i) \qquad \text{for } i = 0, 1, 2, \dots
+    \] converges to the fixed point \( x^\ast \in [a, b] \).
+\end{remark}
+
+\begin{example}[Exercise]
+    Apply the fixed point theorem to the function \[
+        f(x) = x -0.2 \sin(x) - 0.5
+    \] with fixed point problem \[
+        g(x) = 0.2 \sin(x) + 0.5
+    \] and interval \( [-1, 1] \).
+\end{example}
+
+\section{Newton's Method}
+
+Back to the root finding problem, we pick \( x_0 \). Then, we approximate \( f(x) \) near \( x_0 \) by a line that goes through \( (x_0), f(x_0) \) with slope \( f'(x_0) \), \[
+    \ell: y - f(x_i) = f'(x_i) (x - x_0)
+\]
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.67\linewidth]{figures/newtons_method.jpeg}
+\end{figure}
+
+Set \( y = 0 \), solve for \( x \) to get the root of the line, \[
+    x = x_0 - \frac{f(x_0)}{f'(x_0)}
+\]
+This gives us a new approximation \( x_1 \) of the root. We repeat this process to get \[
+    x_{i+1} = x_i - \frac{f(x_i)}{f'(x_i)} \qquad \text{for } i = 0, 1, 2, \dots
+\] and this process is known as \term{Newton's method}.\index{Newton's Method}\index{Newton-Raphson Method}
+
+\begin{example}
+    Suppose we want to find the roots of the function \[
+        f(x) = x - 0.2\sin(x) - 0.5
+    \] with \( x_0 = 0 \) until \( |x_{i+1} - x_i| \leq 5 \times 10^{-7} \).
+
+    Recall that
+    \begin{itemize}
+        \item Using bisection with \( [L_0, R_0] = [0, 1] \), we need 21 iterations
+        \item Using fixed point iteration with \( g(x) = 0.2 \sin(x) + 0.5 \), we need 9 iterations
+    \end{itemize} and we now examine the Newton's method.
+
+    We have iterations \[
+        x_{i+1}
+        = x_i - \frac{f(x_i)}{f'(x_i)}
+        = \frac{x_i - 0.2\sin(x_i) - 0.5}{1 - 0.2\cos(x_i)}
+    \]
+
+    \begin{table}[H]
+        \centering
+        \begin{tabular}{c|c|c}
+            \( i \)
+             & \( x_i \)
+             & \( \delta x_i = | x_{i+1} - x_i | \)
+            \\ \hline \hline
+            \(0\)
+             & \(0\)
+             &                                      \\
+            \(1\)
+             & \(0.625\)
+             & \(6.3\times10^{-1}\)                 \\
+            \(2\)
+             & \(0.6154745\ldots\)
+             & \(9.5\times10^{-3}\)                 \\
+            \(3\)
+             & \(0.6154682\ldots\)
+             & \(6.3\times10^{-6}\)                 \\
+            \(4\)
+             & \(0.6154682\ldots\)
+             & \(2.8\times10^{-12}\)                \\
+        \end{tabular}
+        \caption{Newton's method for \( f(x) = x - 0.2 \sin(x) - 0.5 \)}
+    \end{table}
+
+    \begin{note}
+        We met criteria in \( 4 \) steps, and we observe quadratic convergence.
+
+        \begin{itemize}
+            \item In bisection methods, we only use the sign of \( f(x) \), which is only 1 bit of information.
+            \item In Newton's methods, we use the slope of \( f(x) \) at \( x_i \), which provides more information about the function.
+        \end{itemize}
+    \end{note}
 \end{example}
