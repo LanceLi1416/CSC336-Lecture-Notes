@@ -563,6 +563,7 @@ Define the sequence \[
 
             \end{axis}
         \end{tikzpicture}
+        % \caption{Graph of \( g(x) = 0.2 \sin(x) + 0.5 \) in the interval \( [0, 1] \). The fixed point of \( g \) is the point on \( g \) intersecting the line \( y = x \): \( x = 0.61547 \)}
     \end{figure}
 
     \begin{itemize}
@@ -739,10 +740,18 @@ This gives us a new approximation \( x_1 \) of the root. We repeat this process 
     x_{i+1} = x_i - \frac{f(x_i)}{f'(x_i)} \qquad \text{for } i = 0, 1, 2, \dots
 \] and this process is known as \term{Newton's method}.\index{Newton's Method}\index{Newton-Raphson Method}
 
+\begin{definition}[Newton's Method]
+    Given \( x_0 \) and \( f(x) \), the sequence of approximations to the root of \( f(x) \) is defined by \[
+        x_{i+1} = x_i - \frac{f(x_i)}{f'(x_i)}
+    \] for \( i = 0, 1, 2, \dots \)
+\end{definition}
+
 \begin{example}
     Suppose we want to find the roots of the function \[
         f(x) = x - 0.2\sin(x) - 0.5
     \] with \( x_0 = 0 \) until \( |x_{i+1} - x_i| \leq 5 \times 10^{-7} \).
+
+        {~~~}
 
     Recall that
     \begin{itemize}
@@ -791,3 +800,149 @@ This gives us a new approximation \( x_1 \) of the root. We repeat this process 
         \end{itemize}
     \end{note}
 \end{example}
+
+\section{Secant Method}
+
+Finding the derivative may be complicated and error-prone, and we can use the secant method instead. Instead, we could use two initial approximations \( x_0, x_1 \) and the secant line that goes through \[
+    (x_0, f(x_0)), (x_1, f(x_1))
+\] to approximate the root. The secant line is given by \[
+    y - f(x_1) = \frac{f(x_1) - f(x_0)}{x_1 - x_0} (x - x_1)
+\] We are interested in the \(x\)-intercept of the secant line, so we can set \( y = 0 \) and re-arrange to get \[
+    x = x_1 - \frac{f(x_1)(x_1 - x_0)}{f(x_1) - f(x_0)}
+\] This gives us a new approximation \( x_2 \) of the root. We repeat this process to get \[
+    x_{i+1} = x_i - \frac{f(x_i)(x_i - x_{i-1})}{f(x_i) - f(x_{i-1})} \qquad \text{for } i = 1, 2, \dots
+\] This is known as the \term{secant method}.\index{Secant Method}
+
+\begin{definition}[Secant Method]
+    Given \( x_0, x_1 \) and \( f(x) \), the sequence of approximations to the root of \( f(x) \) is defined by \[
+        x_{i+1} = x_i - \frac{f(x_i)(x_i - x_{i-1})}{f(x_i) - f(x_{i-1})}
+    \] for \( i = 1, 2, \dots \)
+\end{definition}
+
+\begin{remark}[Comparison with Newton's Method]
+    In Newton's method, we need to compute \( f(x_i) \) and \( f'(x_i) \) in each iteration, where as in secant method, we only need to compute \( f(x_i) \) (\( f(x_{i-1}) \) is already computed in the previous iteration). This is useful when \( f'(x) \) is difficult to compute.
+
+        {~~~}
+
+    In general, the secant method will require less work per iteration than Newton's method, but it will converge slower.
+\end{remark}
+
+\begin{example}
+    Find the roots of \[
+        f(x) = x - 0.2 \sin(x) - 0.5
+    \] with \( x_0 = 0, x_1 = 1 \) until \( |x_{i+1} - x_i| \leq 5 \times 10^{-7} \).
+
+    \begin{table}[H]
+        \centering
+        \begin{tabular}{c|c|c}
+            \( i \)
+             & \( x_i \)
+             & \( \Delta x_i = | x_{i+1} - x_i | \)
+            \\ \hline \hline
+            0
+             & \( 0 \)
+             &
+            \\
+            1
+             & \( 1 \)
+             &
+            \\
+            2
+             & \( 0.6011741\ldots \)
+             & \( 4.0 \times 10^{-1} \)
+            \\
+            3
+             &
+            \( 0.6150404\ldots \)
+             & \( 1.4 \times 10^{-2} \)
+            \\
+            4
+             & \( 0.6154686\ldots \)
+             & \( 4.3 \times 10^{-4} \)
+            \\
+            5
+             & \( 0.6154682\ldots \)
+             & \( 4.2 \times 10^{-7} \)
+        \end{tabular}
+        \caption{Secant method for \( f(x) = x - 0.2 \sin(x) - 0.5 \)}
+    \end{table}
+    We meet the stopping criteria in 4 steps.
+
+    Recall that in Newton method, we also converged in 4 steps, but the error was much smaller.
+\end{example}
+
+\begin{remark}
+    Both Newton's method and secant method \textbf{can} converge quickly. However, they \textbf{do not guarantee convergence}.
+\end{remark}
+
+\section{Rate of Convergence}
+
+\subsection{Rate of Convergence for Different Methods}
+
+Suppose we generate a sequence \( x_0, x_1, x_2, \dots \) that converges to \( x^\ast \).
+
+Let \[
+    e_i = | x_i - x^\ast | \qquad \text{for } i = 0, 1, 2, \dots
+\] be the absolute error in \( x_i \)\footnote{Sometimes, \( e_i \) is the \textit{bound} on the error, for example, in the bisection method.}.
+
+The \term{rate of convergence} \( r \) of the sequence is the largest \( r \) such that \[
+    \lim_{\substack{x \to x\ast}} \frac{e_{i+1}}{(e_i)^r} = C \neq 0 \text{ (constant)}
+\]
+
+\begin{itemize}
+    \item In bisection method, \[
+              e_{i+1} = \frac{1}{2} e_i
+          \] so \[
+              \lim_{\substack{x \to x\ast}} \frac{e_{i+1}}{(e_i)^1} = \frac{1}{2}
+          \] and \( r = 1 \)
+
+          This suggests \textbf{linear convergence}.
+
+          \begin{note}
+              If \( r > 1 \), then the convergence is \term{superlinear}.
+          \end{note}
+
+    \item In Newton's method, conctruct a Tayler series approximation of \( f(x) \) near \( x^\ast \)
+
+          We know that \begin{align*}
+              0 & = f(x^\ast)
+              \\
+                & = f(x_i + (x^\ast) - x_i)
+              \\
+                & = f(x_i) + f'(x_i) (x^\ast - x_i) + \frac{1}{2} f''(\Theta) (x^\ast - x_i)^2
+          \end{align*}
+          for some \( \Theta \) between \( x_i \) and \( x^\ast \).
+
+          Assuming \( f'(x_i) \) exists and is non-zero, we can divide both sides by \( f'(x_i) \) to get \begin{align*}
+              0
+               & = \frac{f(x_i)}{f'(x_i)} + (x^\ast - x_i) + \frac{1}{2} \frac{f''(\Theta)}{f'(x_i)} (x^\ast - x_i)^2
+              \\
+              x^\ast - \left( x_i - \frac{f(x_i)}{f'(x_i)} \right)
+               & = -\frac{1}{2} \frac{f''(\Theta)}{f'(x_i)} (x^\ast - x_i)^2
+              \\
+              x^\ast - x_{i+1}
+               & = - \frac{f''(\Theta)}{2f'(x_i)} (x^\ast - x_i)^2
+              \\
+              e_{i+1}
+               & = \left| \frac{f''(\Theta)}{2f'(x_i)} \right| {e_i}^2
+          \end{align*}
+          If the method converges, \[
+              \lim_{\substack{x \to x\ast}} \frac{e_{i+1}}{(e_i)^2} = \left| \frac{f''(\Theta)}{2f'(x_i)} \right| \neq 0
+          \] and the rate of convergence is \( 2 \), which is \term{superlinear}.
+
+          \begin{remark}
+              If \( f'(x_i) = 0 \), then we have multiple roots, and converges to \( r = 1 \).
+          \end{remark}
+
+    \item In secant method, we can show \[
+              \lim_{\substack{x \to x\ast}} \frac{e_{i+1}}{e_i e_{i-1}} = C \neq 0
+          \] and then show \[
+              \lim_{\substack{x \to x\ast}} \frac{e_{i+1}}{(e_i)^r} = C \neq 0
+          \] for \[
+              r = \frac{1 + \sqrt{5}}{2} \approx 1.618
+          \] which is the \term{golden ratio}.
+\end{itemize}
+
+\subsection{Interpretation of Rate of Convergence}
+
+TODO: See plot.
