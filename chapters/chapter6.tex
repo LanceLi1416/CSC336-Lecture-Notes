@@ -824,7 +824,7 @@ Finding the derivative may be complicated and error-prone, and we can use the se
 
         {~~~}
 
-    In general, the secant method will require less work per iteration than Newton's method, but it will converge slower.
+    In general, the secant method will require less work per iteration than Newton's method.
 \end{remark}
 
 \begin{example}
@@ -945,4 +945,154 @@ The \term{rate of convergence} \( r \) of the sequence is the largest \( r \) su
 
 \subsection{Interpretation of Rate of Convergence}
 
-TODO: See plot.
+\vspace{-2em}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.67\linewidth]{figures/rate_of_convergence_e_i.png}
+\end{figure}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.67\linewidth]{figures/rate_of_convergence_log_e_i.png}
+\end{figure}
+
+\subsection{Rate of Convergence from Data}
+
+We know that \[
+    \lim_{i \to \infty} \frac{e_{i+1}}{(e_i)^r} = C \neq 0
+\] and for sufficiently large \( i \), \begin{align*}
+    \frac{e_{i+1}}{e_i^r}
+      & \approx \frac{e_i}{e_{i-1}^r}
+    \\
+    \frac{e_{i+1}}{e_i}
+      & \approx \left( \frac{e_i}{e_{i-1}} \right)^r
+    \\
+    \log\left[ \frac{e_{i+1}}{e_i} \right]
+      & \doteq r \log\left[ \frac{e_i}{e_{i-1}} \right]
+    \\
+    r & \doteq \frac{\log\left[ e_{i+1} / e_i \right]}{\log\left[ e_i / e_{i-1} \right]}
+\end{align*} We don't know \( e_i \), but we can estimate it by \( \Delta x_i \). Take \begin{align*}
+    r_{est}
+     & = \frac{\log\left[ \Delta x_{i+1} / \Delta x_i \right]}{\log\left[ \Delta x_i / \Delta x_{i-1} \right]}
+    \\
+    c_{est}
+     & = \frac{\Delta x_{i+1}}{(\Delta x_i)^{r~\footnotesize{est}}}
+\end{align*}
+
+\begin{verbatim}
+Estimating a convergence rate from computational results i
+
+i   x(i)                  | x(i)-x(i-1) |  rate est.  const. est
+==  ====================  ===============  =========  ==========
+1   2.75000000000000e+00   
+2   2.35916206282344e+00  3.91e-01  
+3   2.15401181187523e+00  2.05e-01         -0.00e+00  2.05e-01
+4   2.05816438480827e+00  9.58e-02          1.18e+00  6.22e-01
+5   2.01898128955147e+00  3.92e-02          1.18e+00  6.17e-01
+6   2.00523654181316e+00  1.37e-02          1.17e+00  6.11e-01
+7   2.00119088895221e+00  4.05e-03          1.17e+00  6.03e-01
+8   2.00021688122653e+00  9.74e-04          1.16e+00  5.95e-01
+9   2.00003059322488e+00  1.86e-04          1.16e+00  5.87e-01
+10  2.00000321691105e+00  2.74e-05          1.16e+00  5.77e-01
+11  2.00000024128199e+00  2.98e-06          1.16e+00  5.67e-01
+12  2.00000001227082e+00  2.29e-07          1.16e+00  5.57e-01
+13  2.00000000039919e+00  1.19e-08          1.15e+00  5.47e-01
+14  2.00000000000777e+00  3.91e-10          1.15e+00  5.37e-01
+15  2.00000000000008e+00  7.68e-12          1.15e+00  5.28e-01
+16  2.00000000000000e+00  8.35e-14          1.15e+00  5.11e-01
+17  2.00000000000000e+00  4.44e-16          1.16e+00  6.19e-01
+18  2.00000000000000e+00  0.00e+00               Inf       NaN
+19  2.00000000000000e+00  0.00e+00               NaN       NaN
+20  2.00000000000000e+00  0.00e+00               NaN       NaN
+\end{verbatim}
+
+\subsection{Convergence of Newton's Method}
+
+\begin{remark}
+    Newton's method does not always converge. In fact, it is often sensitive to the choice of \( x_0 \).
+\end{remark}
+
+\begin{example}
+    Suppose we want to apply Newton's method to find a root of \[
+        f(x) = x - \tan(x)
+    \] in \( [3.5, 4.5] \).
+
+    By IVT, since \(f\) continuous and \[
+        f(3.5) \doteq +3.13
+        \qquad \text{and} \qquad
+        f(4.5) \doteq -0.137
+    \] there must be a root in \( [3.5, 4.5] \).
+    \begin{align*}
+        f'(x)
+         & = 1 - \sec^2(x)                   \\
+         & = 1 - \frac{1}{\cos^2(x)}         \\
+         & = \frac{\cos^2(x) - 1}{\cos^2(x)} \\
+         & = \frac{-\sin^2(x)}{\cos^2(x)}    \\
+         & = -\tan^2(x)
+    \end{align*}
+    Applying Newton's method, \[
+        x_0 \text{ given} \qquad x_{i+1} = x_i - \frac{f(x_i)}{f'(x_i)}
+    \]
+
+    \begin{table}[H]
+        \centering
+        \begin{tabular}{c|c|c|c|c}
+            \( i \)
+             & \( x_i \)
+             & \( f(x_i) \)
+             & \( f'(x_i) \)
+             & \( x_{i+1} \)
+            \\ \hline \hline
+            \( 0 \)
+             & \( 4.0 \)
+             & \( 2.84 \)
+             & \( -1.34 \)
+             & \( 6.12 \)
+            \\
+            \( 1 \)
+             & \( 6.12 \)
+             & \( 6.28 \)
+             & \( -0.027 \)
+             & \( 238.4 \)
+            \\
+            \( 2 \)
+             & \( 238.4 \)
+             & \( 238.7 \)
+             & \( -0.137 \)
+             & \( 1,978.8 \)
+            \\
+            \( 3 \)
+             & \( 1978.8 \)
+             & \( 1979.2 \)
+             & \( -0.234 \)
+             & \( 10,949 \)
+        \end{tabular}
+        \caption{Newton's method for \( f(x) = x - \tan(x) \)}
+    \end{table}
+    Clearly, we don't land in the interval of interest.
+
+    \begin{figure}[H]
+        \centering
+        \begin{tikzpicture}
+            \begin{axis}[
+                    axis lines = middle,
+                    xlabel = \( x \),
+                    ylabel = \( f(x) \),
+                    xmin = -6.25, xmax = 6.25,
+                    ymin = -22, ymax = 22,
+                    legend style = {at={(1.2, 1)}, anchor = north},
+                ]
+                \addplot[domain=-6:-4.57, samples=100, color=red]{x - tan(deg(x))};
+                \addplot[domain=-4.57:-1.57, samples=100, color=orange]{x - tan(deg(x))};
+                \addplot[domain=-1.57:1.57, samples=100, color=green]{x - tan(deg(x))};
+                \addplot[domain=1.57:4.57, samples=100, color=blue]{x - tan(deg(x))};
+                \addplot[domain=4.57:6, samples=100, color=magenta]{x - tan(deg(x))};
+
+                \addlegendentry{branch 1}
+                \addlegendentry{branch 2}
+                \addlegendentry{branch 3}
+                \addlegendentry{branch 4}
+                % \addlegendentry{branch 5}
+            \end{axis}
+        \end{tikzpicture}
+    \end{figure}
+\end{example}
