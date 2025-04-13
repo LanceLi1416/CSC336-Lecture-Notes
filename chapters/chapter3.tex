@@ -193,6 +193,65 @@ An accurate estimation is when \( \left| \frac{\bar{x} f'(\bar{x})}{f(\bar{x})} 
     How to accurately evaluate \[
         f(x) = x = \sqrt{x^2 - 1} \qquad \text{for } |x| > 1
     \]
-\end{example}
+    2 Methods:
+    \begin{enumerate}
+        \item Conditioning
+              \begin{align*}
+                  f'(x)
+                   & = 1 - \frac{\frac{1}{2} (2x)}{\sqrt{x^2 - 1}}                      \\
+                   & = \frac{\sqrt{x^2 - 1} - x}{\sqrt{x^2 - 1}}                        \\
+                   & = \frac{-f(x)}{\sqrt{x^2 - 1}}                                     \\ \\
+                  \kappa_f(x)
+                   & = \left| \frac{x f'(x)}{f(x)} \right|                              \\
+                   & = \left| \frac{x \cdot \frac{-f(x)}{\sqrt{x^2 - 1}}}{f(x)} \right| \\
+                   & = \left| \frac{x}{\sqrt{x^2 - 1}} \right|                          \\
+              \end{align*}
+              Interpreting this we see that $\kappa{f(x)}$ tends to infinity for x near +-1.
+              It tends to 1 as x goes to infinity. Therefore, We can't expect to compute f(x) accurately for x near +-1, but we can for x away from +-1.
+        \item Algorithm \\ \\
+              The obvious approach is to do f = x - math.sqrt(x*x - 1). This would be computed as
+              \begin{center}
+                  a = x * x \\
+                  b = a - 1 \\
+                  c = math.sqrt(b) \\
+                  d = x - c \\
+              \end{center}
 
-% TODO: Lecture 10 - 2025-01-27
+              \( \varepsilon_a = \varepsilon_{x*x} \le \varepsilon_x + \varepsilon_x + |\varepsilon_I|\), where \( |\varepsilon_I| \le \varepsilon_{mach} \)
+
+              Note that $|\varepsilon_I|$ is the representation error. Assume input x is exact and so $\varepsilon_x = 0$:
+
+              $\varepsilon_a = \varepsilon_{x*x} \le 0 + 0 + |\varepsilon_I| \le \varepsilon_{mach}$ \\
+
+              $\varepsilon_b$ = $\varepsilon_{a-1} \le \left| \frac{a}{a-1} \right| \varepsilon_a + \left| \frac{1}{a-1} \right| \varepsilon_1 + |\varepsilon_{II}|$, where $|\varepsilon_{II}| < \varepsilon_{mach} \le \frac{x^2}{x^2 - 1} \varepsilon_{mach} + |\varepsilon_{II}|$
+
+              $\varepsilon_b$ is large for |x| near 1. This is consistent with conditioning.
+
+              $\varepsilon_c$ = $\varepsilon_{sqrt(b)} \le \frac{1}{2} \varepsilon_b + |\varepsilon_{III}|$, where \( |\varepsilon_{III}| < \varepsilon_{mach} \)
+
+              \( \varepsilon_f = \varepsilon_d = \varepsilon_{x - c} \le \left| \frac{x}{x - c} \right| \varepsilon_x + \left| \frac{c}{x - c} \right| \varepsilon_c + |\varepsilon_{IV}| \), where \( |\varepsilon_{IV}| < \varepsilon_{mach} \)
+
+              \( \varepsilon_f = \left| \frac{\sqrt{x^2 - 1}}{x - \sqrt{x^2 - 1}} \right| \varepsilon_c + |\varepsilon_{IV}| \)
+
+              \( \varepsilon_f = \left| \frac{1}{\frac{x}{\sqrt{x^2 - 1}} - 1} \right| \varepsilon_c + \varepsilon_{IV} \)
+
+              \( \varepsilon_f \) is large(?) for |x| near 1.
+
+              As x tends to positive infinity, \( \varepsilon \) can be large. Therefore the algorithm could give inaccurate results for x >> 1 where function is well conditioned.
+
+              Hence a modified algorithm could look like so:
+              \begin{algorithm}[H]
+                  \begin{algorithmic}
+                      \Function{f}{$x$}
+                      \If{\( x < -1 \)}
+                      \State \( f = \texttt{x - math.sqrt(x*x - 1)} \)
+                      \ElsIf{\( x > 1 \)}
+                      \State \( f = \texttt{1 / (x + math.sqrt(x*x - 1))} \)
+                      \Else
+                      \State \(\texttt{raise undefined} \)
+                      \EndIf
+                      \EndFunction
+                  \end{algorithmic}
+              \end{algorithm}
+    \end{enumerate}
+\end{example}
