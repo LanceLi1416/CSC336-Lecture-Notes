@@ -193,51 +193,67 @@ An accurate estimation is when \( \left| \frac{\bar{x} f'(\bar{x})}{f(\bar{x})} 
     How to accurately evaluate \[
         f(x) = x = \sqrt{x^2 - 1} \qquad \text{for } |x| > 1
     \]
-    2 Methods:
+    There are 2 methods:
+
     \begin{enumerate}
         \item Conditioning
+
+              \begin{minipage}[t]{0.45\linewidth}
+                  \begin{align*}
+                      f'(x)
+                       & = 1 - \frac{\frac{1}{2} (2x)}{\sqrt{x^2 - 1}} \\
+                       & = \frac{\sqrt{x^2 - 1} - x}{\sqrt{x^2 - 1}}   \\
+                       & = \frac{-f(x)}{\sqrt{x^2 - 1}}                \\
+                  \end{align*}
+              \end{minipage}
+              \begin{minipage}[t]{0.45\linewidth}
+                  \begin{align*}
+                      \kappa_f(x)
+                       & = \left| \frac{x f'(x)}{f(x)} \right|                              \\
+                       & = \left| \frac{x \cdot \frac{-f(x)}{\sqrt{x^2 - 1}}}{f(x)} \right| \\
+                       & = \left| \frac{x}{\sqrt{x^2 - 1}} \right|                          \\
+                  \end{align*}
+              \end{minipage}
+
+              Interpreting this we see that \( \kappa{f(x)} \) tends to infinity for \( x \) near \( \pm 1 \).
+
+              It tends to \( 1 \) as \( x \) goes to infinity. Therefore, We can't expect to compute \( f(x) \) accurately for \( x \) near \( \pm 1 \), but we can for \( x \) away from \( \pm 1 \).
+        \item Algorithm
+
+              The obvious approach is to do \texttt{f = x - math.sqrt(x*x - 1)}. This would be computed as
               \begin{align*}
-                  f'(x)
-                   & = 1 - \frac{\frac{1}{2} (2x)}{\sqrt{x^2 - 1}}                      \\
-                   & = \frac{\sqrt{x^2 - 1} - x}{\sqrt{x^2 - 1}}                        \\
-                   & = \frac{-f(x)}{\sqrt{x^2 - 1}}                                     \\ \\
-                  \kappa_f(x)
-                   & = \left| \frac{x f'(x)}{f(x)} \right|                              \\
-                   & = \left| \frac{x \cdot \frac{-f(x)}{\sqrt{x^2 - 1}}}{f(x)} \right| \\
-                   & = \left| \frac{x}{\sqrt{x^2 - 1}} \right|                          \\
+                  \texttt{a} & = \texttt{x * x}        \\
+                  \texttt{b} & = \texttt{a - 1}        \\
+                  \texttt{c} & = \texttt{math.sqrt(b)} \\
+                  \texttt{d} & = \texttt{x - c}        \\
               \end{align*}
-              Interpreting this we see that $\kappa{f(x)}$ tends to infinity for x near +-1.
-              It tends to 1 as x goes to infinity. Therefore, We can't expect to compute f(x) accurately for x near +-1, but we can for x away from +-1.
-        \item Algorithm \\ \\
-              The obvious approach is to do f = x - math.sqrt(x*x - 1). This would be computed as
-              \begin{center}
-                  a = x * x \\
-                  b = a - 1 \\
-                  c = math.sqrt(b) \\
-                  d = x - c \\
-              \end{center}
+              \begin{itemize}
+                  \item \( \varepsilon_a = \varepsilon_{x*x} \le \varepsilon_x + \varepsilon_x + |\varepsilon_I|\), where \( |\varepsilon_I| \le \varepsilon_{mach} \)
 
-              \( \varepsilon_a = \varepsilon_{x*x} \le \varepsilon_x + \varepsilon_x + |\varepsilon_I|\), where \( |\varepsilon_I| \le \varepsilon_{mach} \)
+                        Note that \( |\varepsilon_I| \) is the representation error. Assume input \( x \) is exact and so \( \varepsilon_x = 0 \):
 
-              Note that $|\varepsilon_I|$ is the representation error. Assume input x is exact and so $\varepsilon_x = 0$:
+                        \( \varepsilon_a = \varepsilon_{x*x} \le 0 + 0 + |\varepsilon_I| \le \varepsilon_{mach} \)
 
-              $\varepsilon_a = \varepsilon_{x*x} \le 0 + 0 + |\varepsilon_I| \le \varepsilon_{mach}$ \\
+                  \item \( \varepsilon_b = \varepsilon_{a-1} \le \left| \dfrac{a}{a-1} \right| \varepsilon_a + \left| \dfrac{1}{a-1} \right| \varepsilon_1 + |\varepsilon_{II}| \), where \( |\varepsilon_{II}| < \varepsilon_{mach} \le \dfrac{x^2}{x^2 - 1} \varepsilon_{mach} + |\varepsilon_{II}| \)
 
-              $\varepsilon_b$ = $\varepsilon_{a-1} \le \left| \frac{a}{a-1} \right| \varepsilon_a + \left| \frac{1}{a-1} \right| \varepsilon_1 + |\varepsilon_{II}|$, where $|\varepsilon_{II}| < \varepsilon_{mach} \le \frac{x^2}{x^2 - 1} \varepsilon_{mach} + |\varepsilon_{II}|$
+                        \( \varepsilon_b \) is large for \( |x| \) near \( 1 \). This is consistent with conditioning.
 
-              $\varepsilon_b$ is large for |x| near 1. This is consistent with conditioning.
+                  \item \( \varepsilon_c = \varepsilon_{sqrt(b)} \le \dfrac{1}{2} \varepsilon_b + |\varepsilon_{III}| \), where \( |\varepsilon_{III}| < \varepsilon_{mach} \)
 
-              $\varepsilon_c$ = $\varepsilon_{sqrt(b)} \le \frac{1}{2} \varepsilon_b + |\varepsilon_{III}|$, where \( |\varepsilon_{III}| < \varepsilon_{mach} \)
+                  \item \( \varepsilon_f = \varepsilon_d = \varepsilon_{x - c} \le \left| \dfrac{x}{x - c} \right| \varepsilon_x + \left| \dfrac{c}{x - c} \right| \varepsilon_c + |\varepsilon_{IV}| \) where \( |\varepsilon_{IV}| < \varepsilon_{mach} \)
+              \end{itemize}
+              \begin{align*}
+                  \varepsilon_f
+                   & = \left| \frac{\sqrt{x^2 - 1}}{x - \sqrt{x^2 - 1}} \right| \varepsilon_c + |\varepsilon_{IV}|
+                  \\
+                  \varepsilon_f
+                   & = \left| \frac{1}{\frac{x}{\sqrt{x^2 - 1}} - 1} \right| \varepsilon_c + \varepsilon_{IV}
+                  \\
+              \end{align*}
 
-              \( \varepsilon_f = \varepsilon_d = \varepsilon_{x - c} \le \left| \frac{x}{x - c} \right| \varepsilon_x + \left| \frac{c}{x - c} \right| \varepsilon_c + |\varepsilon_{IV}| \), where \( |\varepsilon_{IV}| < \varepsilon_{mach} \)
+              \( \varepsilon_f \) is large(?) for \( |x| \) near \( 1 \).
 
-              \( \varepsilon_f = \left| \frac{\sqrt{x^2 - 1}}{x - \sqrt{x^2 - 1}} \right| \varepsilon_c + |\varepsilon_{IV}| \)
-
-              \( \varepsilon_f = \left| \frac{1}{\frac{x}{\sqrt{x^2 - 1}} - 1} \right| \varepsilon_c + \varepsilon_{IV} \)
-
-              \( \varepsilon_f \) is large(?) for |x| near 1.
-
-              As x tends to positive infinity, \( \varepsilon \) can be large. Therefore the algorithm could give inaccurate results for x >> 1 where function is well conditioned.
+              As \( x \) tends to positive infinity, \( \varepsilon \) can be large. Therefore the algorithm could give inaccurate results for \( x \gg 1 \) where function is well conditioned.
 
               Hence a modified algorithm could look like so:
               \begin{algorithm}[H]
